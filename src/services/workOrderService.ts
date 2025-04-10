@@ -108,3 +108,18 @@ export const fetchTechnicianWorkOrders = async (technicianId: string): Promise<W
   if (error) throw error;
   return data || [];
 };
+
+// Buscar todas as ordens de serviço com detalhes completos para exportação
+export const fetchWorkOrdersForExport = async (): Promise<WorkOrder[]> => {
+  const { data, error } = await supabase
+    .from('work_orders')
+    .select(`
+      *,
+      technician:technicians(*),
+      photos:work_order_photos(*)
+    `)
+    .order('created_at', { ascending: false });
+    
+  if (error) throw error;
+  return data || [];
+};

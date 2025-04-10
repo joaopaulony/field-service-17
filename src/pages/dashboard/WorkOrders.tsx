@@ -6,7 +6,6 @@ import {
   CheckCircle2, 
   Clock, 
   AlertTriangle, 
-  XCircle, 
   Plus, 
   Search, 
   Filter, 
@@ -54,6 +53,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { fetchWorkOrders, deleteWorkOrder } from '@/services/workOrderService';
 import { WorkOrder, WorkOrderStatus } from '@/types/workOrders';
+import ExportDialog from '@/components/ExportDialog';
 
 const WorkOrders = () => {
   const { toast } = useToast();
@@ -61,6 +61,7 @@ const WorkOrders = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isExportOpen, setIsExportOpen] = useState(false);
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | null>(null);
   
   // Consulta para buscar ordens de serviço
@@ -127,10 +128,7 @@ const WorkOrders = () => {
   };
   
   const handleExport = () => {
-    toast({
-      title: "Exportação iniciada",
-      description: "O arquivo será baixado em instantes.",
-    });
+    setIsExportOpen(true);
   };
   
   const openDeleteDialog = (workOrder: WorkOrder) => {
@@ -322,6 +320,12 @@ const WorkOrders = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      {/* Dialog de Exportação */}
+      <ExportDialog 
+        open={isExportOpen} 
+        onOpenChange={setIsExportOpen} 
+      />
     </div>
   );
 };
