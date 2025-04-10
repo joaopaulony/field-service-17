@@ -42,6 +42,145 @@ export type Database = {
         }
         Relationships: []
       }
+      technicians: {
+        Row: {
+          active: boolean
+          company_id: string
+          created_at: string
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          company_id: string
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          company_id?: string
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "technicians_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      work_order_photos: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          photo_url: string
+          work_order_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          photo_url: string
+          work_order_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          photo_url?: string
+          work_order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_order_photos_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      work_orders: {
+        Row: {
+          client_name: string | null
+          company_id: string
+          completion_date: string | null
+          created_at: string
+          description: string | null
+          id: string
+          location: string | null
+          notes: string | null
+          scheduled_date: string | null
+          signature_url: string | null
+          status: Database["public"]["Enums"]["work_order_status"]
+          technician_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          client_name?: string | null
+          company_id: string
+          completion_date?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          scheduled_date?: string | null
+          signature_url?: string | null
+          status?: Database["public"]["Enums"]["work_order_status"]
+          technician_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          client_name?: string | null
+          company_id?: string
+          completion_date?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          scheduled_date?: string | null
+          signature_url?: string | null
+          status?: Database["public"]["Enums"]["work_order_status"]
+          technician_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_orders_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -51,6 +190,7 @@ export type Database = {
     }
     Enums: {
       plan_type: "free" | "basic" | "professional" | "enterprise"
+      work_order_status: "pending" | "in_progress" | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -167,6 +307,7 @@ export const Constants = {
   public: {
     Enums: {
       plan_type: ["free", "basic", "professional", "enterprise"],
+      work_order_status: ["pending", "in_progress", "completed"],
     },
   },
 } as const

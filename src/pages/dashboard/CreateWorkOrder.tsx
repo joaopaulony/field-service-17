@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { 
   ArrowLeft, 
-  Upload, 
   MapPin, 
   Calendar,
   User
@@ -25,25 +25,60 @@ import {
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { createWorkOrder, fetchTechnicians } from '@/services/workOrderService';
+import { CreateWorkOrderDTO } from '@/types/workOrders';
 
 const CreateWorkOrder = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<CreateWorkOrderDTO>({
+    title: '',
+    description: '',
+    client_name: '',
+    location: '',
+    technician_id: '',
+    scheduled_date: '',
+  });
+
+  // Consulta para buscar técnicos
+  const { data: technicians = [] } = useQuery({
+    queryKey: ['technicians'],
+    queryFn: fetchTechnicians
+  });
+  
+  // Mutação para criar ordem de serviço
+  const createMutation = useMutation({
+    mutationFn: createWorkOrder,
+    onSuccess: (data) => {
+      toast({
+        title: "Ordem de Serviço criada",
+        description: "A OS foi criada com sucesso."
+      });
+      navigate(`/dashboard/work-orders/${data.id}`);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao criar Ordem de Serviço",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+  
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    
-    // Simulate creating work order
-    setTimeout(() => {
-      setLoading(false);
-      toast({
-        title: "Ordem de Serviço criada",
-        description: "A OS foi criada com sucesso e atribuída ao técnico.",
-      });
-      navigate('/dashboard/work-orders');
-    }, 1500);
+    createMutation.mutate(formData);
   };
   
   return (
@@ -67,12 +102,25 @@ const CreateWorkOrder = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="title">Título</Label>
-                  <Input id="title" placeholder="Ex: Manutenção de ar-condicionado" required />
+                  <Input 
+                    id="title" 
+                    name="title"
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    placeholder="Ex: Manutenção de ar-condicionado" 
+                    required 
+                  />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="client">Cliente</Label>
-                  <Input id="client" placeholder="Nome do cliente" required />
+                  <Label htmlFor="client_name">Cliente</Label>
+                  <Input 
+                    id="client_name" 
+                    name="client_name"
+                    value={formData.client_name}
+                    onChange={handleInputChange}
+                    placeholder="Nome do cliente" 
+                  />
                 </div>
               </div>
               
@@ -80,35 +128,41 @@ const CreateWorkOrder = () => {
                 <Label htmlFor="description">Descrição</Label>
                 <Textarea 
                   id="description" 
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
                   placeholder="Descreva os detalhes da ordem de serviço..." 
                   rows={4}
-                  required
                 />
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="address">Endereço</Label>
+                  <Label htmlFor="location">Endereço</Label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input 
-                      id="address" 
+                      id="location" 
+                      name="location"
+                      value={formData.location}
+                      onChange={handleInputChange}
                       placeholder="Endereço completo" 
                       className="pl-10"
-                      required
                     />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="scheduledDate">Data Agendada</Label>
+                  <Label htmlFor="scheduled_date">Data Agendada</Label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input 
-                      id="scheduledDate" 
-                      type="date" 
+                      id="scheduled_date" 
+                      name="scheduled_date"
+                      value={formData.scheduled_date}
+                      onChange={handleInputChange}
+                      type="datetime-local"
                       className="pl-10"
-                      required
                     />
                   </div>
                 </div>
@@ -122,88 +176,41 @@ const CreateWorkOrder = () => {
             <h2 className="text-xl font-semibold mb-4">Detalhes da Tarefa</h2>
             
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="priority">Prioridade</Label>
-                  <Select defaultValue="medium" required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a prioridade" />
+              <div className="space-y-2">
+                <Label htmlFor="technician_id">Técnico Responsável</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Select 
+                    name="technician_id" 
+                    value={formData.technician_id} 
+                    onValueChange={(value) => handleSelectChange('technician_id', value)}
+                  >
+                    <SelectTrigger className="pl-10">
+                      <SelectValue placeholder="Selecione um técnico" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="low">Baixa</SelectItem>
-                      <SelectItem value="medium">Média</SelectItem>
-                      <SelectItem value="high">Alta</SelectItem>
+                      {technicians.length > 0 ? (
+                        technicians.map((tech) => (
+                          <SelectItem key={tech.id} value={tech.id}>
+                            {tech.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="" disabled>
+                          Nenhum técnico cadastrado
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="category">Categoria</Label>
-                  <Select defaultValue="maintenance" required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a categoria" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="maintenance">Manutenção</SelectItem>
-                      <SelectItem value="installation">Instalação</SelectItem>
-                      <SelectItem value="repair">Reparo</SelectItem>
-                      <SelectItem value="inspection">Inspeção</SelectItem>
-                      <SelectItem value="other">Outro</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="technician">Técnico Responsável</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Select required>
-                      <SelectTrigger className="pl-10">
-                        <SelectValue placeholder="Selecione um técnico" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="joao">João Silva</SelectItem>
-                        <SelectItem value="maria">Maria Oliveira</SelectItem>
-                        <SelectItem value="carlos">Carlos Santos</SelectItem>
-                        <SelectItem value="ana">Ana Souza</SelectItem>
-                        <SelectItem value="roberto">Roberto Lima</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
                 </div>
               </div>
               
               <Separator />
               
               <div className="space-y-2">
-                <Label>Fotos de Referência (opcional)</Label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  <div className="border-2 border-dashed border-muted rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors">
-                    <div className="flex flex-col items-center justify-center h-32">
-                      <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground">Clique para adicionar foto</p>
-                    </div>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Suporta imagens JPG, JPEG ou PNG até 5MB.
+                <p className="text-sm text-muted-foreground">
+                  Após criar a ordem de serviço, você poderá adicionar fotos, cheklist e outras informações na página de detalhes.
                 </p>
-              </div>
-              
-              <Separator />
-              
-              <div className="space-y-3">
-                <Label>Checklist (opcional)</Label>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Input placeholder="Adicionar item ao checklist" />
-                    <Button type="button" variant="outline">Adicionar</Button>
-                  </div>
-                  
-                  <p className="text-sm text-muted-foreground">
-                    O checklist ajudará o técnico a completar todas as tarefas necessárias.
-                  </p>
-                </div>
               </div>
             </div>
           </CardContent>
@@ -213,8 +220,11 @@ const CreateWorkOrder = () => {
           <Button variant="outline" type="button" asChild>
             <Link to="/dashboard/work-orders">Cancelar</Link>
           </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? "Criando..." : "Criar Ordem de Serviço"}
+          <Button 
+            type="submit" 
+            disabled={!formData.title || createMutation.isPending}
+          >
+            {createMutation.isPending ? "Criando..." : "Criar Ordem de Serviço"}
           </Button>
         </div>
       </form>

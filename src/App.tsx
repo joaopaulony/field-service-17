@@ -22,9 +22,12 @@ import Register from "./pages/auth/Register";
 import Dashboard from "./pages/dashboard/Dashboard";
 import WorkOrders from "./pages/dashboard/WorkOrders";
 import CreateWorkOrder from "./pages/dashboard/CreateWorkOrder";
+import Technicians from "./pages/dashboard/Technicians";
+import WorkOrderDetails from "./pages/dashboard/WorkOrderDetails";
 
 // Technician pages
 import TechnicianDashboard from "./pages/technician/TechnicianDashboard";
+import WorkOrderView from "./pages/technician/WorkOrderView";
 
 const queryClient = new QueryClient();
 
@@ -46,13 +49,14 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/dashboard/work-orders" element={<WorkOrders />} />
               <Route path="/dashboard/work-orders/create" element={<CreateWorkOrder />} />
-              {/* Add more dashboard routes as needed */}
+              <Route path="/dashboard/work-orders/:id" element={<WorkOrderDetails />} />
+              <Route path="/dashboard/technicians" element={<Technicians />} />
             </Route>
             
             {/* Technician Mobile Routes */}
             <Route element={<MobileLayout />}>
               <Route path="/tech" element={<TechnicianDashboard />} />
-              {/* Add more technician routes as needed */}
+              <Route path="/tech/orders/:id" element={<WorkOrderView />} />
             </Route>
             
             {/* Catch-all route */}

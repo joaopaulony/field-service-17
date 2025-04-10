@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   CheckCircle2, 
   Clock, 
@@ -40,88 +41,55 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-
-// Mock data
-const workOrders = [
-  {
-    id: "OS-001",
-    title: "Manutenção de ar-condicionado",
-    client: "Empresa ABC",
-    location: "São Paulo, SP",
-    technician: "João Silva",
-    status: "pending",
-    priority: "high",
-    createdAt: "2023-04-05T10:30:00",
-  },
-  {
-    id: "OS-002",
-    title: "Instalação de câmeras",
-    client: "Restaurante XYZ",
-    location: "Rio de Janeiro, RJ",
-    technician: "Maria Oliveira",
-    status: "in_progress",
-    priority: "medium",
-    createdAt: "2023-04-06T09:15:00",
-  },
-  {
-    id: "OS-003",
-    title: "Reparo em rede elétrica",
-    client: "Loja 123",
-    location: "Belo Horizonte, MG",
-    technician: "Carlos Santos",
-    status: "completed",
-    priority: "high",
-    createdAt: "2023-04-04T14:20:00",
-  },
-  {
-    id: "OS-004",
-    title: "Manutenção preventiva",
-    client: "Hospital Central",
-    location: "Brasília, DF",
-    technician: "Ana Souza",
-    status: "completed",
-    priority: "medium",
-    createdAt: "2023-04-03T11:45:00",
-  },
-  {
-    id: "OS-005",
-    title: "Substituição de equipamento",
-    client: "Escola Municipal",
-    location: "Salvador, BA",
-    technician: "Roberto Lima",
-    status: "pending",
-    priority: "low",
-    createdAt: "2023-04-07T08:00:00",
-  },
-  {
-    id: "OS-006",
-    title: "Instalação de rede WiFi",
-    client: "Escritório Advogados",
-    location: "Curitiba, PR",
-    technician: "João Silva",
-    status: "cancelled",
-    priority: "medium",
-    createdAt: "2023-04-02T13:30:00",
-  },
-  {
-    id: "OS-007",
-    title: "Manutenção de elevador",
-    client: "Edifício Comercial",
-    location: "Porto Alegre, RS",
-    technician: "Maria Oliveira",
-    status: "in_progress",
-    priority: "high",
-    createdAt: "2023-04-06T15:10:00",
-  },
-];
+import { fetchWorkOrders, deleteWorkOrder } from '@/services/workOrderService';
+import { WorkOrder, WorkOrderStatus } from '@/types/workOrders';
 
 const WorkOrders = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | null>(null);
   
-  const getStatusBadge = (status: string) => {
+  // Consulta para buscar ordens de serviço
+  const { data: workOrders = [], isLoading } = useQuery({
+    queryKey: ['workOrders'],
+    queryFn: fetchWorkOrders
+  });
+  
+  // Mutação para excluir ordem de serviço
+  const deleteMutation = useMutation({
+    mutationFn: deleteWorkOrder,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workOrders'] });
+      toast({
+        title: "Ordem de serviço excluída",
+        description: "A ordem de serviço foi excluída com sucesso."
+      });
+      setIsDeleteOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao excluir ordem de serviço",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+  
+  const getStatusBadge = (status: WorkOrderStatus) => {
     switch (status) {
       case 'pending':
         return (
@@ -144,26 +112,6 @@ const WorkOrders = () => {
             <span className="text-xs font-medium text-green-500">Concluído</span>
           </div>
         );
-      case 'cancelled':
-        return (
-          <div className="flex items-center gap-1.5">
-            <XCircle className="h-3.5 w-3.5 text-red-500" />
-            <span className="text-xs font-medium text-red-500">Cancelado</span>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-  
-  const getPriorityBadge = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return <span className="px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs font-medium">Alta</span>;
-      case 'medium':
-        return <span className="px-2 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-medium">Média</span>;
-      case 'low':
-        return <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs font-medium">Baixa</span>;
       default:
         return null;
     }
@@ -185,21 +133,32 @@ const WorkOrders = () => {
     });
   };
   
+  const openDeleteDialog = (workOrder: WorkOrder) => {
+    setSelectedWorkOrder(workOrder);
+    setIsDeleteOpen(true);
+  };
+  
+  const handleDeleteWorkOrder = () => {
+    if (!selectedWorkOrder) return;
+    deleteMutation.mutate(selectedWorkOrder.id);
+  };
+  
+  // Filtrar ordens de serviço por termo de busca e status
   const filteredWorkOrders = workOrders.filter(order => {
-    // Apply status filter
+    // Aplicar filtro de status
     if (statusFilter !== 'all' && order.status !== statusFilter) {
       return false;
     }
     
-    // Apply search term filter (case insensitive)
+    // Aplicar termo de busca (case insensitive)
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       return (
         order.id.toLowerCase().includes(searchLower) ||
         order.title.toLowerCase().includes(searchLower) ||
-        order.client.toLowerCase().includes(searchLower) ||
-        order.location.toLowerCase().includes(searchLower) ||
-        order.technician.toLowerCase().includes(searchLower)
+        (order.client_name && order.client_name.toLowerCase().includes(searchLower)) ||
+        (order.location && order.location.toLowerCase().includes(searchLower)) ||
+        (order.technician && order.technician.name.toLowerCase().includes(searchLower))
       );
     }
     
@@ -221,7 +180,7 @@ const WorkOrders = () => {
         </Button>
       </div>
       
-      {/* Filters */}
+      {/* Filtros */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -246,7 +205,6 @@ const WorkOrders = () => {
               <SelectItem value="pending">Pendente</SelectItem>
               <SelectItem value="in_progress">Em Andamento</SelectItem>
               <SelectItem value="completed">Concluído</SelectItem>
-              <SelectItem value="cancelled">Cancelado</SelectItem>
             </SelectContent>
           </Select>
           
@@ -257,7 +215,7 @@ const WorkOrders = () => {
         </div>
       </div>
       
-      {/* Table */}
+      {/* Tabela */}
       <div className="border rounded-md overflow-hidden">
         <Table>
           <TableHeader>
@@ -268,23 +226,32 @@ const WorkOrders = () => {
               <TableHead className="hidden md:table-cell">Local</TableHead>
               <TableHead className="hidden lg:table-cell">Técnico</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="hidden lg:table-cell">Prioridade</TableHead>
               <TableHead className="hidden md:table-cell">Data</TableHead>
               <TableHead className="w-[60px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredWorkOrders.length > 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-10">
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mb-4"></div>
+                    <p className="text-muted-foreground">Carregando ordens de serviço...</p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : filteredWorkOrders.length > 0 ? (
               filteredWorkOrders.map((order) => (
                 <TableRow key={order.id}>
-                  <TableCell className="font-medium">{order.id}</TableCell>
+                  <TableCell className="font-medium">{order.id.slice(0, 8)}</TableCell>
                   <TableCell>{order.title}</TableCell>
-                  <TableCell className="hidden md:table-cell">{order.client}</TableCell>
-                  <TableCell className="hidden md:table-cell">{order.location}</TableCell>
-                  <TableCell className="hidden lg:table-cell">{order.technician}</TableCell>
+                  <TableCell className="hidden md:table-cell">{order.client_name || '-'}</TableCell>
+                  <TableCell className="hidden md:table-cell">{order.location || '-'}</TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    {order.technician ? order.technician.name : '-'}
+                  </TableCell>
                   <TableCell>{getStatusBadge(order.status)}</TableCell>
-                  <TableCell className="hidden lg:table-cell">{getPriorityBadge(order.priority)}</TableCell>
-                  <TableCell className="hidden md:table-cell">{formatDate(order.createdAt)}</TableCell>
+                  <TableCell className="hidden md:table-cell">{formatDate(order.created_at)}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -312,7 +279,10 @@ const WorkOrders = () => {
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-600 cursor-pointer">
+                        <DropdownMenuItem 
+                          className="text-red-600 cursor-pointer"
+                          onClick={() => openDeleteDialog(order)}
+                        >
                           <Trash2 className="mr-2 h-4 w-4" />
                           <span>Excluir</span>
                         </DropdownMenuItem>
@@ -323,7 +293,7 @@ const WorkOrders = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-10 text-muted-foreground">
                   Nenhuma ordem de serviço encontrada.
                 </TableCell>
               </TableRow>
@@ -331,6 +301,27 @@ const WorkOrders = () => {
           </TableBody>
         </Table>
       </div>
+      
+      {/* AlertDialog para confirmar exclusão */}
+      <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Ordem de Serviço</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir esta ordem de serviço? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteWorkOrder}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteMutation.isPending ? "Excluindo..." : "Excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
