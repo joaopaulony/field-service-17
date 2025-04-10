@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Technician, CreateTechnicianDTO } from "@/types/workOrders";
+import { canAddTechnician } from "@/services/planService";
 
 export const fetchTechnicians = async (): Promise<Technician[]> => {
   const { data, error } = await supabase
@@ -17,6 +18,12 @@ export const createTechnician = async (technician: CreateTechnicianDTO): Promise
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) throw new Error('Usuário não autenticado');
+  
+  // Check if the company can add more technicians
+  const canAdd = await canAddTechnician();
+  if (!canAdd) {
+    throw new Error('Limite de técnicos para o plano atingido');
+  }
   
   const { data, error } = await supabase
     .from('technicians')

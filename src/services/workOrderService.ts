@@ -5,6 +5,7 @@ import {
   CreateWorkOrderDTO, 
   UpdateWorkOrderDTO 
 } from "@/types/workOrders";
+import { canCreateWorkOrder } from "@/services/planService";
 
 export const fetchWorkOrders = async (): Promise<WorkOrder[]> => {
   const { data, error } = await supabase
@@ -43,6 +44,12 @@ export const createWorkOrder = async (workOrder: CreateWorkOrderDTO): Promise<Wo
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) throw new Error('Usuário não autenticado');
+  
+  // Check if the company can create more work orders this month
+  const canCreate = await canCreateWorkOrder();
+  if (!canCreate) {
+    throw new Error('Limite de ordens de serviço para o plano atingido');
+  }
   
   const { data, error } = await supabase
     .from('work_orders')

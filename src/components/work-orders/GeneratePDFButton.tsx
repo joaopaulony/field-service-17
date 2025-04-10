@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { FileText, Clock } from 'lucide-react';
+import { FileText, Clock, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { WorkOrder } from '@/types/workOrders';
 import { generateWorkOrderPDF } from '@/services/reportService';
+import { canExportPDF, showUpgradePlanAlert } from '@/services/planService';
 
 interface GeneratePDFButtonProps {
   workOrder: WorkOrder;
@@ -15,10 +16,34 @@ interface GeneratePDFButtonProps {
 const GeneratePDFButton: React.FC<GeneratePDFButtonProps> = ({ workOrder, disabled }) => {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [canExport, setCanExport] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    const checkExportPermission = async () => {
+      try {
+        const hasPermission = await canExportPDF();
+        setCanExport(hasPermission);
+      } catch (error) {
+        console.error('Error checking PDF export permission:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    checkExportPermission();
+  }, []);
   
   const generatePDFMutation = useMutation({
     mutationFn: async () => {
       try {
+        // Check permission again right before generating
+        const hasPermission = await canExportPDF();
+        if (!hasPermission) {
+          showUpgradePlanAlert('Exportação de PDF');
+          throw new Error('Plano atual não permite exportação de PDF');
+        }
+        
         setIsGenerating(true);
         return await generateWorkOrderPDF(workOrder);
       } finally {
@@ -57,8 +82,21 @@ const GeneratePDFButton: React.FC<GeneratePDFButtonProps> = ({ workOrder, disabl
   });
   
   const handleGeneratePDF = () => {
+    if (!canExport) {
+      showUpgradePlanAlert('Exportação de PDF');
+      return;
+    }
     generatePDFMutation.mutate();
   };
+  
+  if (isLoading) {
+    return (
+      <Button variant="outline" disabled className="gap-2">
+        <Clock className="h-4 w-4 animate-spin" />
+        Carregando...
+      </Button>
+    );
+  }
   
   return (
     <Button
@@ -72,10 +110,15 @@ const GeneratePDFButton: React.FC<GeneratePDFButtonProps> = ({ workOrder, disabl
           <Clock className="h-4 w-4 animate-spin" />
           Gerando PDF...
         </>
-      ) : (
+      ) : canExport ? (
         <>
           <FileText className="h-4 w-4" />
           Gerar PDF
+        </>
+      ) : (
+        <>
+          <Lock className="h-4 w-4" />
+          Gerar PDF (Upgrade)
         </>
       )}
     </Button>
