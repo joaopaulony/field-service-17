@@ -120,6 +120,8 @@ export type Database = {
           client_name: string | null
           company_id: string
           completion_date: string | null
+          completion_latitude: number | null
+          completion_longitude: number | null
           created_at: string
           description: string | null
           id: string
@@ -127,6 +129,8 @@ export type Database = {
           notes: string | null
           scheduled_date: string | null
           signature_url: string | null
+          start_latitude: number | null
+          start_longitude: number | null
           status: Database["public"]["Enums"]["work_order_status"]
           technician_id: string | null
           title: string
@@ -136,6 +140,8 @@ export type Database = {
           client_name?: string | null
           company_id: string
           completion_date?: string | null
+          completion_latitude?: number | null
+          completion_longitude?: number | null
           created_at?: string
           description?: string | null
           id?: string
@@ -143,6 +149,8 @@ export type Database = {
           notes?: string | null
           scheduled_date?: string | null
           signature_url?: string | null
+          start_latitude?: number | null
+          start_longitude?: number | null
           status?: Database["public"]["Enums"]["work_order_status"]
           technician_id?: string | null
           title: string
@@ -152,6 +160,8 @@ export type Database = {
           client_name?: string | null
           company_id?: string
           completion_date?: string | null
+          completion_latitude?: number | null
+          completion_longitude?: number | null
           created_at?: string
           description?: string | null
           id?: string
@@ -159,6 +169,8 @@ export type Database = {
           notes?: string | null
           scheduled_date?: string | null
           signature_url?: string | null
+          start_latitude?: number | null
+          start_longitude?: number | null
           status?: Database["public"]["Enums"]["work_order_status"]
           technician_id?: string | null
           title?: string

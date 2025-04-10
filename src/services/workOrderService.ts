@@ -75,7 +75,11 @@ export const updateWorkOrder = async (id: string, updates: UpdateWorkOrderDTO): 
       scheduled_date: updates.scheduled_date,
       notes: updates.notes,
       completion_date: updates.completion_date,
-      signature_url: updates.signature_url
+      signature_url: updates.signature_url,
+      start_latitude: updates.start_latitude,
+      start_longitude: updates.start_longitude,
+      completion_latitude: updates.completion_latitude,
+      completion_longitude: updates.completion_longitude
     })
     .eq('id', id)
     .select()
@@ -92,6 +96,41 @@ export const deleteWorkOrder = async (id: string): Promise<void> => {
     .eq('id', id);
     
   if (error) throw error;
+};
+
+// Start a work order with geolocation
+export const startWorkOrder = async (id: string, position: GeolocationPosition): Promise<WorkOrder> => {
+  const { data, error } = await supabase
+    .from('work_orders')
+    .update({
+      status: 'in_progress',
+      start_latitude: position.coords.latitude,
+      start_longitude: position.coords.longitude
+    })
+    .eq('id', id)
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data;
+};
+
+// Complete a work order with geolocation
+export const completeWorkOrder = async (id: string, position: GeolocationPosition): Promise<WorkOrder> => {
+  const { data, error } = await supabase
+    .from('work_orders')
+    .update({
+      status: 'completed',
+      completion_date: new Date().toISOString(),
+      completion_latitude: position.coords.latitude,
+      completion_longitude: position.coords.longitude
+    })
+    .eq('id', id)
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data;
 };
 
 // Buscar ordens de serviço de um técnico específico

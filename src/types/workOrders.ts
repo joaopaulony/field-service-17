@@ -31,6 +31,10 @@ export interface WorkOrder {
   updated_at: string;
   technician?: Technician;
   photos?: WorkOrderPhoto[];
+  start_latitude?: number | null;
+  start_longitude?: number | null;
+  completion_latitude?: number | null;
+  completion_longitude?: number | null;
 }
 
 export interface WorkOrderPhoto {
@@ -61,6 +65,10 @@ export interface UpdateWorkOrderDTO {
   notes?: string;
   completion_date?: string;
   signature_url?: string;
+  start_latitude?: number | null;
+  start_longitude?: number | null;
+  completion_latitude?: number | null;
+  completion_longitude?: number | null;
 }
 
 export interface CreateTechnicianDTO {

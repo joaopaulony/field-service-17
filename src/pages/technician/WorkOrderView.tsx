@@ -16,6 +16,7 @@ import WorkOrderNotes from '@/components/technician/WorkOrderNotes';
 import PhotoUpload from '@/components/technician/PhotoUpload';
 import SignaturePadComponent from '@/components/technician/SignaturePadComponent';
 import GeneratePDFButton from '@/components/work-orders/GeneratePDFButton';
+import WorkOrderStatusActions from '@/components/technician/WorkOrderStatusActions';
 
 const WorkOrderView = () => {
   const { id } = useParams<{ id: string }>();
@@ -58,6 +59,16 @@ const WorkOrderView = () => {
           <GeneratePDFButton workOrder={workOrder} />
         )}
       </div>
+      
+      {/* Status actions - Novo componente */}
+      <Card className="mb-6">
+        <CardHeader className="pb-2">
+          <CardTitle>Ações</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <WorkOrderStatusActions workOrder={workOrder} refetch={refetch} />
+        </CardContent>
+      </Card>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Detalhes da Ordem de Serviço */}
