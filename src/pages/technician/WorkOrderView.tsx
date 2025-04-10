@@ -16,7 +16,8 @@ import {
   MessageSquare,
   Edit,
   Send,
-  Pen
+  Pen,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {

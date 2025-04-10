@@ -23,7 +23,11 @@ export const fetchTechnicians = async (): Promise<Technician[]> => {
 export const createTechnician = async (technician: CreateTechnicianDTO): Promise<Technician> => {
   const { data, error } = await supabase
     .from('technicians')
-    .insert(technician)
+    .insert({
+      name: technician.name,
+      email: technician.email,
+      phone: technician.phone
+    })
     .select()
     .single();
     
@@ -88,7 +92,14 @@ export const fetchWorkOrderById = async (id: string): Promise<WorkOrder | null> 
 export const createWorkOrder = async (workOrder: CreateWorkOrderDTO): Promise<WorkOrder> => {
   const { data, error } = await supabase
     .from('work_orders')
-    .insert(workOrder)
+    .insert({
+      title: workOrder.title,
+      description: workOrder.description,
+      client_name: workOrder.client_name,
+      location: workOrder.location,
+      technician_id: workOrder.technician_id,
+      scheduled_date: workOrder.scheduled_date
+    })
     .select()
     .single();
     
@@ -99,7 +110,18 @@ export const createWorkOrder = async (workOrder: CreateWorkOrderDTO): Promise<Wo
 export const updateWorkOrder = async (id: string, updates: UpdateWorkOrderDTO): Promise<WorkOrder> => {
   const { data, error } = await supabase
     .from('work_orders')
-    .update(updates)
+    .update({
+      title: updates.title,
+      description: updates.description,
+      status: updates.status,
+      client_name: updates.client_name,
+      location: updates.location,
+      technician_id: updates.technician_id,
+      scheduled_date: updates.scheduled_date,
+      notes: updates.notes,
+      completion_date: updates.completion_date,
+      signature_url: updates.signature_url
+    })
     .eq('id', id)
     .select()
     .single();
