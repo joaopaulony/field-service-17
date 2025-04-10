@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Clipboard, Mail, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,33 +14,32 @@ import {
   CardTitle 
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useEffect } from 'react';
 
 const Login = () => {
   const { toast } = useToast();
+  const { signIn, user, loading } = useAuth();
   const [isCompany, setIsCompany] = React.useState(true);
-  const [loading, setLoading] = React.useState(false);
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const navigate = useNavigate();
   
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    // Simulate login
-    setTimeout(() => {
-      setLoading(false);
-      
-      // For demonstration, redirect based on user type
+  useEffect(() => {
+    if (user) {
+      // Redirect based on user type (this is just a placeholder logic)
       if (isCompany) {
-        window.location.href = '/dashboard';
+        navigate('/dashboard');
       } else {
-        window.location.href = '/tech';
+        navigate('/tech');
       }
-      
-      toast({
-        title: "Login realizado",
-        description: `Bem-vindo de volta!`,
-      });
-    }, 1500);
+    }
+  }, [user, navigate, isCompany]);
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await signIn(email, password);
   };
   
   return (
@@ -89,6 +88,8 @@ const Login = () => {
                   type="email" 
                   required
                   className="pl-10"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </div>
@@ -108,6 +109,8 @@ const Login = () => {
                   type="password" 
                   required
                   className="pl-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
             </div>

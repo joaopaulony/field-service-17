@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Clipboard, Mail, Lock, Building, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,28 +14,60 @@ import {
   CardTitle 
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const plans = [
+  { id: 'free', name: 'Gratuito', description: 'Até 1 técnico', price: 'R$ 0/mês' },
+  { id: 'basic', name: 'Básico', description: 'Até 5 técnicos', price: 'R$ 99/mês' },
+  { id: 'professional', name: 'Profissional', description: 'Até 15 técnicos', price: 'R$ 199/mês' },
+  { id: 'enterprise', name: 'Empresarial', description: 'Até 30 técnicos', price: 'R$ 299/mês' },
+];
 
 const Register = () => {
   const { toast } = useToast();
-  const [loading, setLoading] = React.useState(false);
+  const { signUp, user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  const [companyName, setCompanyName] = React.useState('');
+  const [responsibleName, setResponsibleName] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [confirmPassword, setConfirmPassword] = React.useState('');
+  const [selectedPlan, setSelectedPlan] = React.useState('free');
   
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     
-    // Simulate registration
-    setTimeout(() => {
-      setLoading(false);
-      
-      // Redirect to dashboard
-      window.location.href = '/dashboard';
-      
+    if (password !== confirmPassword) {
       toast({
-        title: "Conta criada com sucesso!",
-        description: "Bem-vindo ao FieldService.",
+        title: "Erro na senha",
+        description: "As senhas não correspondem.",
+        variant: "destructive",
       });
-    }, 1500);
+      return;
+    }
+    
+    const metadata = {
+      company_name: companyName,
+      responsible_name: responsibleName,
+      plan: selectedPlan,
+    };
+    
+    await signUp(email, password, metadata);
   };
   
   return (
@@ -66,6 +98,8 @@ const Register = () => {
                   placeholder="Sua Empresa Ltda." 
                   required
                   className="pl-10"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
                 />
               </div>
             </div>
@@ -79,6 +113,8 @@ const Register = () => {
                   placeholder="Seu Nome" 
                   required
                   className="pl-10"
+                  value={responsibleName}
+                  onChange={(e) => setResponsibleName(e.target.value)}
                 />
               </div>
             </div>
@@ -93,8 +129,32 @@ const Register = () => {
                   type="email" 
                   required
                   className="pl-10"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="plan">Plano</Label>
+              <Select
+                value={selectedPlan}
+                onValueChange={setSelectedPlan}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um plano" />
+                </SelectTrigger>
+                <SelectContent>
+                  {plans.map((plan) => (
+                    <SelectItem key={plan.id} value={plan.id} className="flex flex-col">
+                      <div className="flex flex-col">
+                        <span className="font-medium">{plan.name}</span>
+                        <span className="text-xs text-muted-foreground">{plan.description} - {plan.price}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="space-y-2">
@@ -107,6 +167,8 @@ const Register = () => {
                   type="password" 
                   required
                   className="pl-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
             </div>
@@ -121,6 +183,8 @@ const Register = () => {
                   type="password" 
                   required
                   className="pl-10"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </div>
             </div>
