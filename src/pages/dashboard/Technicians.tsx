@@ -49,7 +49,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { fetchTechnicians, createTechnician, updateTechnician, deleteTechnician } from '@/services/workOrderService';
+import { fetchTechnicians, createTechnician, updateTechnician, deleteTechnician } from '@/services/technicianService';
 import { Technician, CreateTechnicianDTO } from '@/types/workOrders';
 import { Badge } from '@/components/ui/badge';
 

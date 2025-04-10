@@ -55,7 +55,8 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { fetchWorkOrderById, updateWorkOrder, addWorkOrderPhoto, saveSignature } from '@/services/workOrderService';
+import { fetchWorkOrderById, updateWorkOrder } from '@/services/workOrderService';
+import { addWorkOrderPhoto, saveSignature } from '@/services/photoService';
 import { WorkOrder, WorkOrderStatus } from '@/types/workOrders';
 
 const WorkOrderView = () => {

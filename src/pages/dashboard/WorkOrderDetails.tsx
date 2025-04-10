@@ -54,7 +54,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { fetchWorkOrderById, updateWorkOrder, deleteWorkOrder, addWorkOrderPhoto, deleteWorkOrderPhoto } from '@/services/workOrderService';
+import { fetchWorkOrderById, updateWorkOrder, deleteWorkOrder } from '@/services/workOrderService';
+import { addWorkOrderPhoto, deleteWorkOrderPhoto } from '@/services/photoService';
 import { WorkOrder, WorkOrderStatus } from '@/types/workOrders';
 
 const WorkOrderDetails = () => {

@@ -25,7 +25,8 @@ import {
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
-import { createWorkOrder, fetchTechnicians } from '@/services/workOrderService';
+import { createWorkOrder } from '@/services/workOrderService';
+import { fetchTechnicians } from '@/services/technicianService';
 import { CreateWorkOrderDTO } from '@/types/workOrders';
 
 const CreateWorkOrder = () => {
