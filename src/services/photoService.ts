@@ -2,7 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 
 // Add a photo to a work order
-export const addWorkOrderPhoto = async (workOrderId: string, file: File, description: string) => {
+export const addWorkOrderPhoto = async (workOrderId: string, file: File, description: string = '') => {
   try {
     // Upload the file to Supabase Storage
     const fileExt = file.name.split('.').pop();
@@ -25,7 +25,7 @@ export const addWorkOrderPhoto = async (workOrderId: string, file: File, descrip
       .from('work_order_photos')
       .insert({
         work_order_id: workOrderId,
-        url: publicUrl,
+        photo_url: publicUrl,
         description: description || null
       })
       .select()
@@ -105,7 +105,7 @@ export const deleteWorkOrderPhoto = async (photoId: string) => {
 
     // Extract file path from URL
     // This assumes the URL format from Supabase storage
-    const urlParts = photo.url.split('/');
+    const urlParts = photo.photo_url.split('/');
     const bucketName = 'work-order-photos';
     const filePath = urlParts.slice(urlParts.indexOf(bucketName) + 1).join('/');
 

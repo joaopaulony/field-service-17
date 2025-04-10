@@ -6,16 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { deleteWorkOrderPhoto } from '@/services/photoService';
-
-interface Photo {
-  id: string;
-  url: string;
-  description?: string;
-  created_at: string;
-}
+import { WorkOrderPhoto } from '@/types/workOrders';
 
 interface PhotoGridProps {
-  photos: Photo[];
+  photos: WorkOrderPhoto[];
   refetch: () => void;
 }
 
@@ -51,7 +45,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos, refetch }) => {
       {photos.map((photo) => (
         <Card key={photo.id} className="overflow-hidden relative group">
           <img 
-            src={photo.url} 
+            src={photo.photo_url} 
             alt={photo.description || "Foto da ordem de serviço"} 
             className="w-full h-48 object-cover"
           />

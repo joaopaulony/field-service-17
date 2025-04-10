@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -119,8 +118,8 @@ const WorkOrderDetails = () => {
   
   // Mutação para adicionar foto
   const addPhotoMutation = useMutation({
-    mutationFn: ({ workOrderId, file }: { workOrderId: string, file: File }) => 
-      addWorkOrderPhoto(workOrderId, file),
+    mutationFn: ({ workOrderId, file, description }: { workOrderId: string, file: File, description?: string }) => 
+      addWorkOrderPhoto(workOrderId, file, description || ''),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workOrder', id] });
       toast({
@@ -228,7 +227,7 @@ const WorkOrderDetails = () => {
     const file = e.target.files?.[0];
     if (!file || !id) return;
     
-    addPhotoMutation.mutate({ workOrderId: id, file });
+    addPhotoMutation.mutate({ workOrderId: id, file, description: '' });
     e.target.value = '';
   };
   

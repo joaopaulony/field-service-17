@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -10,8 +11,7 @@ import {
   ImagePlus,
   Signature,
   Save,
-  ArrowLeft,
-  X
+  ArrowLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -179,7 +179,7 @@ const WorkOrderView = () => {
   return (
     <div className="container py-8">
       <div className="mb-6 flex items-center gap-4">
-        <Button variant="outline" size="icon" asChild>
+        <Button variant="outline" size="icon">
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
@@ -306,11 +306,18 @@ const WorkOrderView = () => {
             <CardTitle>Assinatura do Cliente</CardTitle>
           </CardHeader>
           <CardContent>
-            <SignaturePad 
-              options={{ minWidth: 1, maxWidth: 3, penColor: "rgb(66, 153, 225)" }}
-              ref={(ref) => setSignaturePad(ref)}
-              canvasProps={{width: 500, height: 200, className: 'border rounded-md'}}
-            />
+            <div className="border rounded-md">
+              <SignaturePad 
+                options={{ 
+                  minWidth: 1, 
+                  maxWidth: 3, 
+                  penColor: "rgb(66, 153, 225)",
+                  height: "200px",
+                  width: "100%"
+                }}
+                ref={(ref) => setSignaturePad(ref)}
+              />
+            </div>
             <Button 
               onClick={handleSaveSignature} 
               disabled={saveSignatureMutation.isPending || isSavingSignature}
