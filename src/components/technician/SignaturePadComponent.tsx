@@ -77,13 +77,12 @@ const SignaturePadComponent: React.FC<SignaturePadComponentProps> = ({ workOrder
         <CardTitle>Assinatura do Cliente</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="border rounded-md">
+        <div className="border rounded-md" style={{ width: '100%', height: '200px' }}>
           <SignaturePad 
             options={{ 
               minWidth: 1, 
               maxWidth: 3, 
-              penColor: "rgb(66, 153, 225)",
-              width: "100%"
+              penColor: "rgb(66, 153, 225)"
             }}
             ref={(ref) => setSignaturePad(ref)}
           />
