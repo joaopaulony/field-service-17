@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -28,35 +29,33 @@ const WorkOrderDetails = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
   
-  const deleteWorkOrderMutation = useMutation(
-    () => deleteWorkOrder(id!),
-    {
-      onSuccess: () => {
-        toast({
-          title: "Ordem de serviço excluída",
-          description: "A ordem de serviço foi excluída com sucesso.",
-        });
-        navigate('/dashboard/work-orders');
-      },
-      onError: (error: any) => {
-        toast({
-          title: "Erro ao excluir ordem de serviço",
-          description: error.message,
-          variant: "destructive",
-        });
-      },
-      onSettled: () => {
-        setIsDeleting(false);
-        setIsDeleteDialogOpen(false);
-      },
-    }
-  );
+  const deleteWorkOrderMutation = useMutation({
+    mutationFn: () => deleteWorkOrder(id!),
+    onSuccess: () => {
+      toast({
+        title: "Ordem de serviço excluída",
+        description: "A ordem de serviço foi excluída com sucesso.",
+      });
+      navigate('/dashboard/work-orders');
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao excluir ordem de serviço",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+    onSettled: () => {
+      setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
+    },
+  });
   
   const handleDeleteClick = () => {
     setIsDeleteDialogOpen(true);
   };
   
-  const confirmDelete = async () => {
+  const confirmDelete = () => {
     setIsDeleting(true);
     deleteWorkOrderMutation.mutate();
   };
