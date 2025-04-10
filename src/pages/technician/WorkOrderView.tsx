@@ -1,29 +1,35 @@
 
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Clock, ArrowLeft } from 'lucide-react';
+import { Clock, ArrowLeft, FileText } from 'lucide-react';
 import { fetchWorkOrderById } from '@/services/workOrderService';
 import PhotoGrid from '@/components/PhotoGrid';
 
-// Import our new components
+// Import our components
 import WorkOrderDetails from '@/components/technician/WorkOrderDetails';
 import WorkOrderNotes from '@/components/technician/WorkOrderNotes';
 import PhotoUpload from '@/components/technician/PhotoUpload';
 import SignaturePadComponent from '@/components/technician/SignaturePadComponent';
+import GeneratePDFButton from '@/components/work-orders/GeneratePDFButton';
 
 const WorkOrderView = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   
   // Fetch Work Order
   const { data: workOrder, isLoading, refetch } = useQuery({
     queryKey: ['workOrder', id],
     queryFn: () => fetchWorkOrderById(id!),
   });
+  
+  const handleGoBack = () => {
+    navigate('/tech');
+  };
   
   if (isLoading || !workOrder) {
     return (
@@ -37,15 +43,20 @@ const WorkOrderView = () => {
   return (
     <div className="container py-8">
       <div className="mb-6 flex items-center gap-4">
-        <Button variant="outline" size="icon">
+        <Button variant="outline" size="icon" onClick={handleGoBack}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div>
+        <div className="flex-1">
           <h1 className="text-3xl font-bold">{workOrder.title}</h1>
           <p className="text-muted-foreground">
             Detalhes da ordem de serviço <Badge>{workOrder.id}</Badge>
           </p>
         </div>
+        
+        {/* Botão para gerar PDF (apenas para ordens concluídas) */}
+        {workOrder.status === 'completed' && (
+          <GeneratePDFButton workOrder={workOrder} />
+        )}
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
