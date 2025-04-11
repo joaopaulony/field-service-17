@@ -146,7 +146,7 @@ const Register = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {plans.map((plan) => (
-                    <SelectItem key={plan.id} value={plan.id} className="flex flex-col">
+                    <SelectItem key={plan.id} value={plan.id}>
                       <div className="flex flex-col">
                         <span className="font-medium">{plan.name}</span>
                         <span className="text-xs text-muted-foreground">{plan.description} - {plan.price}</span>

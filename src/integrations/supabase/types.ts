@@ -18,6 +18,14 @@ export type Database = {
           name: string
           plan: Database["public"]["Enums"]["plan_type"]
           responsible_name: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_period_end: string | null
+          subscription_period_start: string | null
+          subscription_status:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          trial_ends_at: string | null
           updated_at: string
         }
         Insert: {
@@ -28,6 +36,14 @@ export type Database = {
           name: string
           plan?: Database["public"]["Enums"]["plan_type"]
           responsible_name: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_period_end?: string | null
+          subscription_period_start?: string | null
+          subscription_status?:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          trial_ends_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -38,9 +54,119 @@ export type Database = {
           name?: string
           plan?: Database["public"]["Enums"]["plan_type"]
           responsible_name?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_period_end?: string | null
+          subscription_period_start?: string | null
+          subscription_status?:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          trial_ends_at?: string | null
           updated_at?: string
         }
         Relationships: []
+      }
+      plans: {
+        Row: {
+          allow_api_integration: boolean
+          allow_pdf_export: boolean
+          created_at: string
+          description: string | null
+          has_dedicated_support: boolean
+          id: string
+          is_public: boolean
+          max_technicians: number
+          max_work_orders_per_month: number | null
+          name: string
+          price_monthly: number
+          price_yearly: number
+          stripe_price_id_monthly: string | null
+          stripe_price_id_yearly: string | null
+          updated_at: string
+        }
+        Insert: {
+          allow_api_integration?: boolean
+          allow_pdf_export?: boolean
+          created_at?: string
+          description?: string | null
+          has_dedicated_support?: boolean
+          id: string
+          is_public?: boolean
+          max_technicians: number
+          max_work_orders_per_month?: number | null
+          name: string
+          price_monthly: number
+          price_yearly: number
+          stripe_price_id_monthly?: string | null
+          stripe_price_id_yearly?: string | null
+          updated_at?: string
+        }
+        Update: {
+          allow_api_integration?: boolean
+          allow_pdf_export?: boolean
+          created_at?: string
+          description?: string | null
+          has_dedicated_support?: boolean
+          id?: string
+          is_public?: boolean
+          max_technicians?: number
+          max_work_orders_per_month?: number | null
+          name?: string
+          price_monthly?: number
+          price_yearly?: number
+          stripe_price_id_monthly?: string | null
+          stripe_price_id_yearly?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscription_history: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          period_end: string | null
+          period_start: string
+          plan_id: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_subscription_id: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          period_end?: string | null
+          period_start: string
+          plan_id: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_subscription_id?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          period_end?: string | null
+          period_start?: string
+          plan_id?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_subscription_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_history_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_history_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       technicians: {
         Row: {
@@ -202,6 +328,14 @@ export type Database = {
     }
     Enums: {
       plan_type: "free" | "basic" | "professional" | "enterprise"
+      subscription_status:
+        | "active"
+        | "trialing"
+        | "past_due"
+        | "canceled"
+        | "incomplete"
+        | "incomplete_expired"
+        | "unpaid"
       work_order_status: "pending" | "in_progress" | "completed"
     }
     CompositeTypes: {
@@ -319,6 +453,15 @@ export const Constants = {
   public: {
     Enums: {
       plan_type: ["free", "basic", "professional", "enterprise"],
+      subscription_status: [
+        "active",
+        "trialing",
+        "past_due",
+        "canceled",
+        "incomplete",
+        "incomplete_expired",
+        "unpaid",
+      ],
       work_order_status: ["pending", "in_progress", "completed"],
     },
   },
