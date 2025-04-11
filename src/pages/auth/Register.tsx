@@ -61,13 +61,21 @@ const Register = () => {
       return;
     }
     
-    const metadata = {
-      company_name: companyName,
-      responsible_name: responsibleName,
-      plan: selectedPlan,
-    };
-    
-    await signUp(email, password, metadata);
+    try {
+      const metadata = {
+        company_name: companyName,
+        responsible_name: responsibleName,
+        plan: selectedPlan,
+      };
+      
+      await signUp(email, password, metadata);
+    } catch (error: any) {
+      toast({
+        title: "Erro no cadastro",
+        description: error.message || "Ocorreu um erro ao criar sua conta.",
+        variant: "destructive",
+      });
+    }
   };
   
   return (
@@ -141,7 +149,7 @@ const Register = () => {
                 value={selectedPlan}
                 onValueChange={setSelectedPlan}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Selecione um plano" />
                 </SelectTrigger>
                 <SelectContent>
