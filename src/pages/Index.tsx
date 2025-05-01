@@ -58,9 +58,9 @@ const Index = () => {
           
           <div className="bg-muted rounded-xl overflow-hidden shadow-lg">
             <img 
-              src="/lovable-uploads/650e374b-c726-445b-a5b3-8aa1ec97af12.png" 
+              src="/lovable-uploads/b610e546-2457-40d5-b85c-922302776454.png" 
               alt="Dashboard Preview" 
-              className="w-full h-auto"
+              className="w-full h-auto object-cover"
             />
           </div>
         </div>
