@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -83,7 +84,8 @@ const Settings = () => {
     queryFn: getCompanyDetails,
   });
 
-  const updateMutation = useMutation(updateCompany, {
+  const updateMutation = useMutation({
+    mutationFn: (updates: any) => updateCompany(updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["company"] });
       toast({

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import {
@@ -35,7 +36,7 @@ const DashboardLayout = () => {
   };
 
   return (
-    <SidebarProvider defaultCollapsed={false}>
+    <SidebarProvider>
       <div className="min-h-screen flex">
         <Sidebar className="h-screen">
           <SidebarContent>
@@ -101,7 +102,7 @@ const DashboardLayout = () => {
               <ThemeSwitcher />
               <Avatar>
                 <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>{getInitials(user?.name || '')}</AvatarFallback>
+                <AvatarFallback>{getInitials(user?.email || '')}</AvatarFallback>
               </Avatar>
             </div>
           </header>

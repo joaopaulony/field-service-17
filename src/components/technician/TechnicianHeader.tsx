@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import WorkOrderSearch from './WorkOrderSearch';
@@ -10,6 +10,12 @@ interface TechnicianHeaderProps {
 }
 
 const TechnicianHeader: React.FC<TechnicianHeaderProps> = ({ technicianName }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  const handleSearchChange = (term: string) => {
+    setSearchTerm(term);
+  };
+  
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -26,7 +32,10 @@ const TechnicianHeader: React.FC<TechnicianHeaderProps> = ({ technicianName }) =
         </div>
       </div>
       
-      <WorkOrderSearch />
+      <WorkOrderSearch 
+        searchTerm={searchTerm} 
+        onSearchChange={handleSearchChange} 
+      />
     </div>
   );
 };

@@ -12,6 +12,7 @@ import QuickActions from '@/components/technician/QuickActions';
 
 // Técnico mockado para teste (em produção, viria da autenticação)
 const MOCK_TECHNICIAN_ID = "3fa85f64-5717-4562-b3fc-2c963f66afa6"; // Substitua por um ID real de um técnico
+const MOCK_TECHNICIAN_NAME = "João Técnico"; // Nome mockado do técnico
 
 const TechnicianDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -74,10 +75,7 @@ const TechnicianDashboard: React.FC = () => {
   return (
     <div className="mobile-container">
       {/* Header */}
-      <TechnicianHeader 
-        activeOrders={activeOrders.length} 
-        completedOrders={completedOrders.length} 
-      />
+      <TechnicianHeader technicianName={MOCK_TECHNICIAN_NAME} />
       
       {/* Search */}
       <WorkOrderSearch 
