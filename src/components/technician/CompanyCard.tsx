@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Building } from 'lucide-react';
 
 interface CompanyCardProps {
   company: {
@@ -26,20 +27,23 @@ const CompanyCard: React.FC<CompanyCardProps> = ({ company }) => {
   };
 
   return (
-    <Card className="shadow-sm border-muted overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/10 dark:to-blue-900/20">
-        <CardTitle>Empresa</CardTitle>
+    <Card className="shadow-md border-muted transition-all duration-200 hover:shadow-lg">
+      <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-900/40 flex flex-row items-center justify-between">
+        <CardTitle className="flex items-center gap-2">
+          <Building className="h-5 w-5 text-muted-foreground" />
+          Empresa
+        </CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col sm:flex-row items-center gap-4 p-6">
-        <Avatar className="w-20 h-20 border border-border">
+      <CardContent className="flex flex-col sm:flex-row items-start gap-4 p-6">
+        <Avatar className="w-16 h-16 border border-border">
           <AvatarImage src={company?.logo_url || ''} alt="Logo da empresa" />
-          <AvatarFallback className="text-xl bg-primary text-primary-foreground">
+          <AvatarFallback className="text-lg bg-primary text-primary-foreground">
             {company ? getInitials(company.name) : 'FS'}
           </AvatarFallback>
         </Avatar>
         
-        <div>
-          <h2 className="text-xl font-medium">{company?.name}</h2>
+        <div className="mt-2 sm:mt-0">
+          <h2 className="text-xl font-medium">{company?.name || 'Empresa'}</h2>
           {company?.email && (
             <p className="text-sm text-muted-foreground mt-1">{company.email}</p>
           )}
@@ -47,7 +51,7 @@ const CompanyCard: React.FC<CompanyCardProps> = ({ company }) => {
             <p className="text-sm text-muted-foreground">{company.phone}</p>
           )}
           {company?.address && (
-            <p className="text-sm text-muted-foreground">{company.address}, {company.city} - {company.state}</p>
+            <p className="text-sm text-muted-foreground mt-1">{company.address}, {company.city} - {company.state}</p>
           )}
         </div>
       </CardContent>

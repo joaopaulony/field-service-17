@@ -12,13 +12,17 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 import LogoUpload from "@/components/settings/LogoUpload";
+import { Building, Palette, User } from "lucide-react";
 
 const AppearanceSettings = () => {
   const { theme, setTheme } = useTheme();
   
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-medium">Aparência</h3>
+      <div className="flex items-center gap-2 mb-4">
+        <Palette className="h-5 w-5 text-muted-foreground" />
+        <h3 className="text-lg font-medium">Aparência</h3>
+      </div>
       
       <RadioGroup value={theme} onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'tech')}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -26,7 +30,7 @@ const AppearanceSettings = () => {
             <RadioGroupItem id="light" value="light" className="sr-only peer" />
             <Label 
               htmlFor="light" 
-              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-white p-4 hover:bg-gray-50 hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 [&:has([data-state=checked])]:border-primary"
+              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-white p-4 hover:bg-gray-50 hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 [&:has([data-state=checked])]:border-primary transition-colors"
             >
               <div className="w-full mb-4">
                 <div className="rounded-md border border-gray-200 bg-gray-50 p-2 mb-2">
@@ -42,7 +46,7 @@ const AppearanceSettings = () => {
             <RadioGroupItem id="dark" value="dark" className="sr-only peer" />
             <Label 
               htmlFor="dark" 
-              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-gray-950 p-4 hover:bg-gray-900 hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 [&:has([data-state=checked])]:border-primary"
+              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-gray-950 p-4 hover:bg-gray-900 hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 [&:has([data-state=checked])]:border-primary transition-colors"
             >
               <div className="w-full mb-4">
                 <div className="rounded-md border border-gray-700 bg-gray-800 p-2 mb-2">
@@ -58,7 +62,7 @@ const AppearanceSettings = () => {
             <RadioGroupItem id="tech" value="tech" className="sr-only peer" />
             <Label 
               htmlFor="tech" 
-              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-sky-50 p-4 hover:bg-sky-100 hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 [&:has([data-state=checked])]:border-primary"
+              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-sky-50 p-4 hover:bg-sky-100 hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 [&:has([data-state=checked])]:border-primary transition-colors"
             >
               <div className="w-full mb-4">
                 <div className="rounded-md border border-cyan-200 bg-white p-2 mb-2">
@@ -127,30 +131,42 @@ const Settings = () => {
   };
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 max-w-7xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold">Configurações</h1>
+        <h1 className="text-3xl font-bold mb-2">Configurações</h1>
         <p className="text-muted-foreground">
           Gerencie as configurações da sua empresa e do aplicativo.
         </p>
       </div>
       
       <Tabs defaultValue="company" className="w-full">
-        <TabsList className="w-full sm:w-auto grid grid-cols-3 mb-6">
-          <TabsTrigger value="company">Empresa</TabsTrigger>
-          <TabsTrigger value="appearance">Aparência</TabsTrigger>
-          <TabsTrigger value="account">Conta</TabsTrigger>
+        <TabsList className="w-full sm:w-auto grid grid-cols-3 mb-6 max-w-md">
+          <TabsTrigger value="company" className="flex items-center gap-2">
+            <Building className="h-4 w-4" />
+            <span>Empresa</span>
+          </TabsTrigger>
+          <TabsTrigger value="appearance" className="flex items-center gap-2">
+            <Palette className="h-4 w-4" />
+            <span>Aparência</span>
+          </TabsTrigger>
+          <TabsTrigger value="account" className="flex items-center gap-2">
+            <User className="h-4 w-4" />
+            <span>Conta</span>
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="company" className="mt-0">
-          <Card className="shadow-sm border-muted">
-            <CardHeader>
-              <CardTitle>Informações da Empresa</CardTitle>
+          <Card className="shadow-md border-muted">
+            <CardHeader className="bg-gradient-to-r from-gray-50/50 to-gray-100/50 dark:from-gray-900/30 dark:to-gray-900/40">
+              <CardTitle className="flex items-center gap-2">
+                <Building className="h-5 w-5 text-muted-foreground" />
+                Informações da Empresa
+              </CardTitle>
               <CardDescription>
                 Atualize as informações da sua empresa.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 p-6">
               {isLoading ? (
                 <p>Carregando informações da empresa...</p>
               ) : company ? (
@@ -211,7 +227,7 @@ const Settings = () => {
                     </div>
                   </div>
                   
-                  <Separator />
+                  <Separator className="my-6" />
                   
                   <div className="space-y-4">
                     <div>
@@ -259,7 +275,7 @@ const Settings = () => {
                   </div>
                   
                   <div className="flex justify-end">
-                    <Button type="submit" disabled={updateMutation.isPending}>
+                    <Button type="submit" disabled={updateMutation.isPending} className="px-6">
                       {updateMutation.isPending ? "Atualizando..." : "Atualizar Empresa"}
                     </Button>
                   </div>
@@ -272,30 +288,39 @@ const Settings = () => {
         </TabsContent>
         
         <TabsContent value="appearance" className="mt-0">
-          <Card className="shadow-sm border-muted">
-            <CardHeader>
-              <CardTitle>Aparência</CardTitle>
+          <Card className="shadow-md border-muted">
+            <CardHeader className="bg-gradient-to-r from-gray-50/50 to-gray-100/50 dark:from-gray-900/30 dark:to-gray-900/40">
+              <CardTitle className="flex items-center gap-2">
+                <Palette className="h-5 w-5 text-muted-foreground" />
+                Aparência
+              </CardTitle>
               <CardDescription>
                 Personalize a aparência do aplicativo de acordo com suas preferências.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               <AppearanceSettings />
             </CardContent>
           </Card>
         </TabsContent>
         
         <TabsContent value="account" className="mt-0">
-          <Card className="shadow-sm border-muted">
-            <CardHeader>
-              <CardTitle>Conta</CardTitle>
+          <Card className="shadow-md border-muted">
+            <CardHeader className="bg-gradient-to-r from-gray-50/50 to-gray-100/50 dark:from-gray-900/30 dark:to-gray-900/40">
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5 text-muted-foreground" />
+                Conta
+              </CardTitle>
               <CardDescription>
                 Gerencie as configurações da sua conta de usuário.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               {/* Account settings content would go here */}
-              <p>Configurações de conta em breve.</p>
+              <div className="flex flex-col items-center justify-center p-8 text-center">
+                <User className="h-12 w-12 text-muted-foreground/50 mb-4" />
+                <p className="text-muted-foreground">Configurações de conta em breve.</p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
