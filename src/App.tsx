@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { PlanProvider } from "./contexts/PlanContext";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 // Layouts
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -30,6 +31,9 @@ import WorkOrderDetails from "./pages/dashboard/WorkOrderDetails";
 import TechnicianDashboard from "./pages/technician/TechnicianDashboard";
 import WorkOrderView from "./pages/technician/WorkOrderView";
 
+// Reports page
+import Reports from "./pages/dashboard/Reports";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -47,16 +51,18 @@ const App = () => (
               <Route path="/register" element={<Register />} />
               
               {/* Admin Dashboard Routes */}
-              <Route element={<DashboardLayout />}>
+              <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/dashboard/work-orders" element={<WorkOrders />} />
                 <Route path="/dashboard/work-orders/create" element={<CreateWorkOrder />} />
                 <Route path="/dashboard/work-orders/:id" element={<WorkOrderDetails />} />
                 <Route path="/dashboard/technicians" element={<Technicians />} />
+                <Route path="/dashboard/reports" element={<Reports />} />
+                <Route path="/dashboard/settings" element={<Navigate to="/dashboard" />} />
               </Route>
               
               {/* Technician Mobile Routes */}
-              <Route element={<MobileLayout />}>
+              <Route element={<ProtectedRoute><MobileLayout /></ProtectedRoute>}>
                 <Route path="/tech" element={<TechnicianDashboard />} />
                 <Route path="/tech/orders/:id" element={<WorkOrderView />} />
               </Route>

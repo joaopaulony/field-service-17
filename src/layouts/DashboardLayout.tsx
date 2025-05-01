@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { ChevronDown, Clipboard, Home, LayoutDashboard, LogOut, Menu, Settings, UserPlus, Users } from 'lucide-react';
+import { ChevronDown, Clipboard, LayoutDashboard, LogOut, Menu, Settings, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -17,13 +17,20 @@ import { useAuth } from '@/contexts/AuthContext';
 const DashboardLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   
   const isActive = (path: string) => location.pathname === path;
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/login');
+  };
+  
+  // Função para obter as iniciais do usuário
+  const getInitials = (email: string) => {
+    if (!email) return 'FS';
+    const parts = email.split('@');
+    return parts[0].substring(0, 2).toUpperCase();
   };
 
   const NavItem = ({ to, icon: Icon, label }: { to: string; icon: any; label: string }) => (
@@ -43,13 +50,13 @@ const DashboardLayout: React.FC = () => {
   return (
     <div className="flex min-h-screen">
       {/* Sidebar for desktop */}
-      <div className="hidden lg:flex flex-col w-64 bg-sidebar border-r border-border">
+      <div className="hidden lg:flex flex-col w-64 bg-[#0D1525] text-white">
         <div className="p-4 border-b border-border">
           <Link to="/dashboard" className="flex items-center gap-2">
             <div className="bg-primary rounded-md p-1">
               <Clipboard size={20} className="text-white" />
             </div>
-            <span className="font-semibold text-lg text-sidebar-foreground">FieldService</span>
+            <span className="font-semibold text-lg text-white">FieldService</span>
           </Link>
         </div>
         
@@ -63,17 +70,19 @@ const DashboardLayout: React.FC = () => {
         <div className="p-4 border-t border-border">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-full flex items-center justify-between px-3">
+              <Button variant="ghost" className="w-full flex items-center justify-between px-3 text-white">
                 <div className="flex items-center gap-2">
                   <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary text-primary-foreground">FS</AvatarFallback>
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                      {user ? getInitials(user.email || "") : "FS"}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="text-left">
-                    <p className="text-sm font-medium text-sidebar-foreground">Empresa Demo</p>
-                    <p className="text-xs text-sidebar-foreground/70">Plano Gratuito</p>
+                    <p className="text-sm font-medium text-white">Empresa Demo</p>
+                    <p className="text-xs text-gray-400">Plano Gratuito</p>
                   </div>
                 </div>
-                <ChevronDown size={16} className="text-sidebar-foreground/70" />
+                <ChevronDown size={16} className="text-gray-400" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -108,13 +117,13 @@ const DashboardLayout: React.FC = () => {
                 <Menu size={20} />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-64 p-0">
+            <SheetContent side="left" className="w-64 p-0 bg-[#0D1525] text-white">
               <div className="p-4 border-b border-border">
                 <Link to="/dashboard" className="flex items-center gap-2">
                   <div className="bg-primary rounded-md p-1">
                     <Clipboard size={20} className="text-white" />
                   </div>
-                  <span className="font-semibold text-lg">FieldService</span>
+                  <span className="font-semibold text-lg text-white">FieldService</span>
                 </Link>
               </div>
               
@@ -128,11 +137,13 @@ const DashboardLayout: React.FC = () => {
               <div className="p-4 border-t border-border">
                 <div className="flex items-center gap-2">
                   <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary text-primary-foreground">FS</AvatarFallback>
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                      {user ? getInitials(user.email || "") : "FS"}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="text-sm font-medium">Empresa Demo</p>
-                    <p className="text-xs text-muted-foreground">Plano Gratuito</p>
+                    <p className="text-sm font-medium text-white">Empresa Demo</p>
+                    <p className="text-xs text-gray-400">Plano Gratuito</p>
                   </div>
                 </div>
                 <div className="mt-4 flex flex-col gap-2">
@@ -158,7 +169,7 @@ const DashboardLayout: React.FC = () => {
         </header>
         
         {/* Page content */}
-        <main className="flex-1 p-6">
+        <main className="flex-1">
           <Outlet />
         </main>
       </div>

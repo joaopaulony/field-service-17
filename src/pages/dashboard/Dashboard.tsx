@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   CheckCircle2, 
   Clock, 
@@ -23,37 +23,158 @@ import {
   BarChart,
   Bar
 } from 'recharts';
-
-// Mock data
-const statusData = [
-  { status: 'Pendente', value: 8, icon: <Clock className="h-5 w-5 text-amber-500" /> },
-  { status: 'Em Andamento', value: 12, icon: <AlertTriangle className="h-5 w-5 text-blue-500" /> },
-  { status: 'Concluído', value: 24, icon: <CheckCircle2 className="h-5 w-5 text-green-500" /> },
-  { status: 'Cancelado', value: 3, icon: <XCircle className="h-5 w-5 text-red-500" /> },
-];
-
-const weeklyData = [
-  { name: 'Seg', pendentes: 4, andamento: 2, concluidas: 5 },
-  { name: 'Ter', pendentes: 3, andamento: 4, concluidas: 3 },
-  { name: 'Qua', pendentes: 5, andamento: 3, concluidas: 6 },
-  { name: 'Qui', pendentes: 6, andamento: 2, concluidas: 4 },
-  { name: 'Sex', pendentes: 4, andamento: 5, concluidas: 7 },
-  { name: 'Sáb', pendentes: 2, andamento: 3, concluidas: 5 },
-  { name: 'Dom', pendentes: 1, andamento: 1, concluidas: 2 },
-];
-
-const technicianPerformance = [
-  { name: 'João Silva', completed: 12 },
-  { name: 'Maria Oliveira', completed: 9 },
-  { name: 'Carlos Santos', completed: 15 },
-  { name: 'Ana Souza', completed: 8 },
-  { name: 'Roberto Lima', completed: 11 },
-];
+import { useQuery } from '@tanstack/react-query';
+import { fetchWorkOrders } from '@/services/workOrderService';
+import { fetchTechnicians } from '@/services/technicianService';
+import { WorkOrder, WorkOrderStatus } from '@/types/workOrders';
+import { Technician } from '@/types/workOrders';
 
 const Dashboard = () => {
+  const [statusCounts, setStatusCounts] = useState({
+    pending: 0,
+    in_progress: 0,
+    completed: 0,
+    canceled: 0
+  });
+  
+  const [weeklyData, setWeeklyData] = useState<any[]>([]);
+  const [technicianPerformance, setTechnicianPerformance] = useState<any[]>([]);
+
+  // Fetch work orders
+  const { data: workOrders = [], isLoading: isLoadingWorkOrders } = useQuery({
+    queryKey: ['workOrders'],
+    queryFn: fetchWorkOrders
+  });
+
+  // Fetch technicians
+  const { data: technicians = [], isLoading: isLoadingTechnicians } = useQuery({
+    queryKey: ['technicians'],
+    queryFn: fetchTechnicians
+  });
+
+  // Process data when work orders and technicians are loaded
+  useEffect(() => {
+    if (!isLoadingWorkOrders && workOrders.length > 0) {
+      // Calculate status counts
+      const counts = {
+        pending: 0,
+        in_progress: 0,
+        completed: 0,
+        canceled: 0
+      };
+      
+      workOrders.forEach((order: WorkOrder) => {
+        counts[order.status] += 1;
+      });
+      
+      setStatusCounts(counts);
+      
+      // Generate weekly data
+      const weeklyStats = processWeeklyData(workOrders);
+      setWeeklyData(weeklyStats);
+      
+      // Process technician performance
+      if (!isLoadingTechnicians && technicians.length > 0) {
+        const techPerformance = processTechnicianPerformance(workOrders, technicians);
+        setTechnicianPerformance(techPerformance);
+      }
+    }
+  }, [workOrders, technicians, isLoadingWorkOrders, isLoadingTechnicians]);
+
+  // Process weekly data function
+  const processWeeklyData = (orders: WorkOrder[]) => {
+    // Get last 7 days
+    const days = [];
+    const dayNames = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+    const today = new Date();
+    
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(today.getDate() - i);
+      days.push({
+        date,
+        name: dayNames[date.getDay() === 0 ? 6 : date.getDay() - 1],
+        pendentes: 0,
+        andamento: 0,
+        concluidas: 0
+      });
+    }
+    
+    // Populate data
+    orders.forEach((order) => {
+      const orderDate = new Date(order.created_at);
+      
+      // Check if order was created in the last 7 days
+      days.forEach((day) => {
+        if (orderDate.toDateString() === day.date.toDateString()) {
+          switch (order.status) {
+            case 'pending':
+              day.pendentes += 1;
+              break;
+            case 'in_progress':
+              day.andamento += 1;
+              break;
+            case 'completed':
+              day.concluidas += 1;
+              break;
+          }
+        }
+      });
+    });
+    
+    return days;
+  };
+
+  // Process technician performance
+  const processTechnicianPerformance = (orders: WorkOrder[], techs: Technician[]) => {
+    const techMap = new Map<string, number>();
+    
+    // Initialize with all technicians
+    techs.forEach((tech) => {
+      techMap.set(tech.id, 0);
+    });
+    
+    // Count completed orders by technician
+    orders.forEach((order) => {
+      if (order.status === 'completed' && order.technician_id) {
+        techMap.set(order.technician_id, (techMap.get(order.technician_id) || 0) + 1);
+      }
+    });
+    
+    // Format data for chart
+    return techs.map((tech) => ({
+      name: tech.name,
+      completed: techMap.get(tech.id) || 0
+    })).sort((a, b) => b.completed - a.completed).slice(0, 5);
+  };
+
+  // Status card data
+  const statusData = [
+    { 
+      status: 'Pendente', 
+      value: statusCounts.pending, 
+      icon: <Clock className="h-5 w-5 text-amber-500" /> 
+    },
+    { 
+      status: 'Em Andamento', 
+      value: statusCounts.in_progress, 
+      icon: <AlertTriangle className="h-5 w-5 text-blue-500" /> 
+    },
+    { 
+      status: 'Concluído', 
+      value: statusCounts.completed, 
+      icon: <CheckCircle2 className="h-5 w-5 text-green-500" /> 
+    },
+    { 
+      status: 'Cancelado', 
+      value: statusCounts.canceled, 
+      icon: <XCircle className="h-5 w-5 text-red-500" /> 
+    },
+  ];
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="p-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <p className="text-muted-foreground">Bem-vindo de volta! Aqui está um resumo das suas atividades.</p>
@@ -69,7 +190,7 @@ const Dashboard = () => {
       </div>
       
       {/* Status Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {statusData.map((item) => (
           <Card key={item.status}>
             <CardContent className="p-6">
@@ -88,7 +209,7 @@ const Dashboard = () => {
       </div>
       
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <Card className="col-span-1">
           <CardHeader>
             <CardTitle>Atividade Semanal</CardTitle>

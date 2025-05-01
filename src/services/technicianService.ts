@@ -1,57 +1,79 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Technician, CreateTechnicianDTO } from "@/types/workOrders";
-import { canAddTechnician } from "@/services/planService";
 
+// Buscar todos os técnicos
 export const fetchTechnicians = async (): Promise<Technician[]> => {
-  const { data, error } = await supabase
-    .from('technicians')
-    .select('*')
-    .order('name');
-    
-  if (error) throw error;
-  return data || [];
-};
-
-export const createTechnician = async (technician: CreateTechnicianDTO): Promise<Technician> => {
-  // Get the authenticated user's ID to use as company_id
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) throw new Error('Usuário não autenticado');
   
-  // Check if the company can add more technicians
-  const canAdd = await canAddTechnician();
-  if (!canAdd) {
-    throw new Error('Limite de técnicos para o plano atingido');
+  const { data, error } = await supabase
+    .from('technicians')
+    .select('*')
+    .eq('company_id', user.id)
+    .order('name');
+    
+  if (error) throw error;
+  return data as Technician[] || [];
+};
+
+// Buscar técnico por ID
+export const fetchTechnicianById = async (id: string): Promise<Technician | null> => {
+  const { data, error } = await supabase
+    .from('technicians')
+    .select('*')
+    .eq('id', id)
+    .single();
+    
+  if (error) {
+    if (error.code === 'PGRST116') return null; // Registro não encontrado
+    throw error;
   }
+  
+  return data as Technician;
+};
+
+// Criar um novo técnico
+export const createTechnician = async (technician: CreateTechnicianDTO): Promise<Technician> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error('Usuário não autenticado');
   
   const { data, error } = await supabase
     .from('technicians')
     .insert({
-      company_id: user.id,
       name: technician.name,
       email: technician.email,
-      phone: technician.phone
+      phone: technician.phone,
+      company_id: user.id
     })
     .select()
     .single();
     
   if (error) throw error;
-  return data as unknown as Technician;
+  return data as Technician;
 };
 
-export const updateTechnician = async (id: string, updates: Partial<Technician>): Promise<Technician> => {
+// Atualizar técnico
+export const updateTechnician = async (id: string, technician: Partial<Technician>): Promise<Technician> => {
   const { data, error } = await supabase
     .from('technicians')
-    .update(updates as any)
+    .update({
+      name: technician.name,
+      email: technician.email,
+      phone: technician.phone,
+      active: technician.active
+    })
     .eq('id', id)
     .select()
     .single();
     
   if (error) throw error;
-  return data as unknown as Technician;
+  return data as Technician;
 };
 
+// Excluir técnico
 export const deleteTechnician = async (id: string): Promise<void> => {
   const { error } = await supabase
     .from('technicians')
@@ -59,4 +81,37 @@ export const deleteTechnician = async (id: string): Promise<void> => {
     .eq('id', id);
     
   if (error) throw error;
+};
+
+// Contar técnicos ativos
+export const countActiveTechnicians = async (): Promise<number> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error('Usuário não autenticado');
+  
+  const { count, error } = await supabase
+    .from('technicians')
+    .select('*', { count: 'exact', head: true })
+    .eq('company_id', user.id)
+    .eq('active', true);
+    
+  if (error) throw error;
+  return count || 0;
+};
+
+// Buscar técnicos ativos
+export const fetchActiveTechnicians = async (): Promise<Technician[]> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error('Usuário não autenticado');
+  
+  const { data, error } = await supabase
+    .from('technicians')
+    .select('*')
+    .eq('company_id', user.id)
+    .eq('active', true)
+    .order('name');
+    
+  if (error) throw error;
+  return data as Technician[] || [];
 };

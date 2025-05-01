@@ -8,12 +8,17 @@ import {
 import { canCreateWorkOrder } from "@/services/planService";
 
 export const fetchWorkOrders = async (): Promise<WorkOrder[]> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error('Usuário não autenticado');
+  
   const { data, error } = await supabase
     .from('work_orders')
     .select(`
       *,
       technician:technicians(*)
     `)
+    .eq('company_id', user.id)
     .order('created_at', { ascending: false });
     
   if (error) throw error;
@@ -140,6 +145,21 @@ export const completeWorkOrder = async (id: string, position: GeolocationPositio
   return data as unknown as WorkOrder;
 };
 
+// Cancelar uma ordem de serviço
+export const cancelWorkOrder = async (id: string): Promise<WorkOrder> => {
+  const { data, error } = await supabase
+    .from('work_orders')
+    .update({
+      status: 'canceled'
+    } as any)
+    .eq('id', id)
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data as unknown as WorkOrder;
+};
+
 // Buscar ordens de serviço de um técnico específico
 export const fetchTechnicianWorkOrders = async (technicianId: string): Promise<WorkOrder[]> => {
   const { data, error } = await supabase
@@ -155,8 +175,59 @@ export const fetchTechnicianWorkOrders = async (technicianId: string): Promise<W
   return data as unknown as WorkOrder[] || [];
 };
 
+// Buscar todas as ordens de serviço por status
+export const fetchWorkOrdersByStatus = async (status: string): Promise<WorkOrder[]> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error('Usuário não autenticado');
+  
+  const { data, error } = await supabase
+    .from('work_orders')
+    .select(`
+      *,
+      technician:technicians(*)
+    `)
+    .eq('company_id', user.id)
+    .eq('status', status)
+    .order('created_at', { ascending: false });
+    
+  if (error) throw error;
+  return data as unknown as WorkOrder[] || [];
+};
+
+// Contar ordens de serviço por status
+export const countWorkOrdersByStatus = async (): Promise<Record<string, number>> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error('Usuário não autenticado');
+  
+  const { data, error } = await supabase
+    .from('work_orders')
+    .select('status')
+    .eq('company_id', user.id);
+    
+  if (error) throw error;
+  
+  const counts = {
+    pending: 0,
+    in_progress: 0,
+    completed: 0,
+    canceled: 0
+  };
+  
+  data.forEach((order: any) => {
+    counts[order.status as keyof typeof counts] += 1;
+  });
+  
+  return counts;
+};
+
 // Buscar todas as ordens de serviço com detalhes completos para exportação
 export const fetchWorkOrdersForExport = async (): Promise<WorkOrder[]> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error('Usuário não autenticado');
+  
   const { data, error } = await supabase
     .from('work_orders')
     .select(`
@@ -164,6 +235,7 @@ export const fetchWorkOrdersForExport = async (): Promise<WorkOrder[]> => {
       technician:technicians(*),
       photos:work_order_photos(*)
     `)
+    .eq('company_id', user.id)
     .order('created_at', { ascending: false });
     
   if (error) throw error;
