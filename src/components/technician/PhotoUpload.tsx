@@ -9,13 +9,15 @@ import { UploadCloud, Camera, Loader, X } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { addWorkOrderPhoto } from '@/services/photoService';
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
+import { WorkOrder } from '@/types/workOrders';
 
 interface PhotoUploadProps {
   workOrderId: string;
-  onUploadSuccess: () => void;
+  refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<WorkOrder, Error>>;
 }
 
-const PhotoUpload: React.FC<PhotoUploadProps> = ({ workOrderId, onUploadSuccess }) => {
+const PhotoUpload: React.FC<PhotoUploadProps> = ({ workOrderId, refetch }) => {
   const { toast } = useToast();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [description, setDescription] = useState('');
@@ -33,7 +35,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ workOrderId, onUploadSuccess 
         description: "A foto foi adicionada com sucesso."
       });
       resetForm();
-      onUploadSuccess();
+      refetch();
     },
     onError: (error: any) => {
       toast({
