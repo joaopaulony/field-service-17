@@ -10,3 +10,20 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // import { supabase } from "@/integrations/supabase/client";
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+// Create storage bucket for company logos if it doesn't exist
+(async () => {
+  const { data: buckets } = await supabase.storage.listBuckets();
+  if (!buckets?.find(bucket => bucket.name === 'logos')) {
+    const { error } = await supabase.storage.createBucket('logos', {
+      public: true,
+      fileSizeLimit: 5242880, // 5MB
+      allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+    });
+    if (error) {
+      console.error('Error creating storage bucket:', error);
+    } else {
+      console.log('Created "logos" bucket for company logos');
+    }
+  }
+})();

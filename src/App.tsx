@@ -26,10 +26,12 @@ import WorkOrders from "./pages/dashboard/WorkOrders";
 import CreateWorkOrder from "./pages/dashboard/CreateWorkOrder";
 import Technicians from "./pages/dashboard/Technicians";
 import WorkOrderDetails from "./pages/dashboard/WorkOrderDetails";
+import Settings from "./pages/dashboard/Settings";
 
 // Technician pages
 import TechnicianDashboard from "./pages/technician/TechnicianDashboard";
 import WorkOrderView from "./pages/technician/WorkOrderView";
+import TechnicianSettings from "./pages/technician/TechnicianSettings";
 
 // Reports page
 import Reports from "./pages/dashboard/Reports";
@@ -58,13 +60,14 @@ const App = () => (
                 <Route path="/dashboard/work-orders/:id" element={<WorkOrderDetails />} />
                 <Route path="/dashboard/technicians" element={<Technicians />} />
                 <Route path="/dashboard/reports" element={<Reports />} />
-                <Route path="/dashboard/settings" element={<Navigate to="/dashboard" />} />
+                <Route path="/dashboard/settings" element={<Settings />} />
               </Route>
               
               {/* Technician Mobile Routes */}
               <Route element={<ProtectedRoute><MobileLayout /></ProtectedRoute>}>
                 <Route path="/tech" element={<TechnicianDashboard />} />
                 <Route path="/tech/orders/:id" element={<WorkOrderView />} />
+                <Route path="/tech/settings" element={<TechnicianSettings />} />
               </Route>
               
               {/* Catch-all route */}
