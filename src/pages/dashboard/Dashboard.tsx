@@ -153,27 +153,35 @@ const Dashboard = () => {
     { 
       status: 'Pendente', 
       value: statusCounts.pending, 
-      icon: <Clock className="h-5 w-5 text-amber-500" /> 
+      icon: <Clock className="h-5 w-5 text-amber-500" />,
+      bgColor: 'bg-amber-50',
+      borderColor: 'border-amber-200'
     },
     { 
       status: 'Em Andamento', 
       value: statusCounts.in_progress, 
-      icon: <AlertTriangle className="h-5 w-5 text-blue-500" /> 
+      icon: <AlertTriangle className="h-5 w-5 text-blue-500" />,
+      bgColor: 'bg-blue-50',
+      borderColor: 'border-blue-200'
     },
     { 
       status: 'Concluído', 
       value: statusCounts.completed, 
-      icon: <CheckCircle2 className="h-5 w-5 text-green-500" /> 
+      icon: <CheckCircle2 className="h-5 w-5 text-green-500" />,
+      bgColor: 'bg-green-50',
+      borderColor: 'border-green-200'
     },
     { 
       status: 'Cancelado', 
       value: statusCounts.canceled, 
-      icon: <XCircle className="h-5 w-5 text-red-500" /> 
+      icon: <XCircle className="h-5 w-5 text-red-500" />,
+      bgColor: 'bg-red-50',
+      borderColor: 'border-red-200'
     },
   ];
 
   return (
-    <div className="p-6">
+    <div>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
@@ -184,22 +192,22 @@ const Dashboard = () => {
             <Link to="/dashboard/work-orders">Ver Ordens de Serviço</Link>
           </Button>
           <Button asChild>
-            <Link to="/dashboard/work-orders/create">Nova Ordem de Serviço</Link>
+            <Link to="/dashboard/work-orders/new">Nova Ordem de Serviço</Link>
           </Button>
         </div>
       </div>
       
       {/* Status Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         {statusData.map((item) => (
-          <Card key={item.status}>
-            <CardContent className="p-6">
+          <Card key={item.status} className={`shadow-sm border ${item.borderColor}`}>
+            <CardContent className={`p-6 ${item.bgColor} bg-opacity-30 rounded-lg`}>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">{item.status}</p>
                   <h3 className="text-2xl font-bold mt-1">{item.value}</h3>
                 </div>
-                <div className="bg-muted p-3 rounded-full">
+                <div className={`${item.bgColor} p-3 rounded-full`}>
                   {item.icon}
                 </div>
               </div>
@@ -210,8 +218,8 @@ const Dashboard = () => {
       
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <Card className="col-span-1">
-          <CardHeader>
+        <Card className="col-span-1 shadow-sm">
+          <CardHeader className="pb-2">
             <CardTitle>Atividade Semanal</CardTitle>
             <CardDescription>Ordens de serviço por status nos últimos 7 dias</CardDescription>
           </CardHeader>
@@ -257,8 +265,8 @@ const Dashboard = () => {
           </CardContent>
         </Card>
         
-        <Card className="col-span-1">
-          <CardHeader>
+        <Card className="col-span-1 shadow-sm">
+          <CardHeader className="pb-2">
             <CardTitle>Desempenho por Técnico</CardTitle>
             <CardDescription>Ordens concluídas por técnico no último mês</CardDescription>
           </CardHeader>
@@ -282,7 +290,7 @@ const Dashboard = () => {
       
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card className="shadow-sm bg-gradient-to-br from-blue-50 to-white border-blue-100">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <Clipboard className="h-5 w-5" />
@@ -301,7 +309,7 @@ const Dashboard = () => {
           </CardFooter>
         </Card>
         
-        <Card>
+        <Card className="shadow-sm bg-gradient-to-br from-purple-50 to-white border-purple-100">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <Users className="h-5 w-5" />
@@ -320,7 +328,7 @@ const Dashboard = () => {
           </CardFooter>
         </Card>
         
-        <Card>
+        <Card className="shadow-sm bg-gradient-to-br from-emerald-50 to-white border-emerald-100">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <BarChart3 className="h-5 w-5" />

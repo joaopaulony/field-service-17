@@ -135,114 +135,134 @@ const Settings = () => {
         </p>
       </div>
       
-      <Tabs defaultValue="company">
-        <TabsList className="w-full sm:w-auto grid grid-cols-3">
+      <Tabs defaultValue="company" className="w-full">
+        <TabsList className="w-full sm:w-auto grid grid-cols-3 mb-6">
           <TabsTrigger value="company">Empresa</TabsTrigger>
           <TabsTrigger value="appearance">Aparência</TabsTrigger>
           <TabsTrigger value="account">Conta</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="company" className="mt-4">
-          <Card>
+        <TabsContent value="company" className="mt-0">
+          <Card className="shadow-sm border-muted">
             <CardHeader>
               <CardTitle>Informações da Empresa</CardTitle>
               <CardDescription>
                 Atualize as informações da sua empresa.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               {isLoading ? (
                 <p>Carregando informações da empresa...</p>
               ) : company ? (
-                <form onSubmit={handleUpdateCompany} className="space-y-4">
-                  <LogoUpload
-                    currentLogo={company.logo_url || ""}
-                    onLogoUpdate={handleLogoUpdate}
-                    companyName={company.name}
-                  />
-                  <Separator />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="name">Nome da Empresa</Label>
-                      <Input
-                        id="name"
-                        name="name"
-                        defaultValue={company.name}
-                        placeholder="Nome da empresa"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        defaultValue={company.email || ""}
-                        placeholder="Email"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="phone">Telefone</Label>
-                      <Input
-                        id="phone"
-                        name="phone"
-                        defaultValue={company.phone || ""}
-                        placeholder="Telefone"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="contact_person">Pessoa de Contato</Label>
-                      <Input
-                        id="contact_person"
-                        name="contact_person"
-                        defaultValue={company.contact_person || ""}
-                        placeholder="Pessoa de Contato"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="address">Endereço</Label>
-                    <Input
-                      id="address"
-                      name="address"
-                      defaultValue={company.address || ""}
-                      placeholder="Endereço"
+                <form onSubmit={handleUpdateCompany} className="space-y-6">
+                  <div className="flex flex-col md:flex-row gap-6 items-start">
+                    <LogoUpload
+                      currentLogo={company.logo_url || ""}
+                      onLogoUpdate={handleLogoUpdate}
+                      companyName={company.name}
                     />
+                    <div className="w-full space-y-6">
+                      <Separator className="md:hidden" />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="name">Nome da Empresa</Label>
+                          <Input
+                            id="name"
+                            name="name"
+                            defaultValue={company.name}
+                            placeholder="Nome da empresa"
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="email">Email</Label>
+                          <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            defaultValue={company.email || ""}
+                            placeholder="Email"
+                            className="mt-1"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="phone">Telefone</Label>
+                          <Input
+                            id="phone"
+                            name="phone"
+                            defaultValue={company.phone || ""}
+                            placeholder="Telefone"
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="contact_person">Pessoa de Contato</Label>
+                          <Input
+                            id="contact_person"
+                            name="contact_person"
+                            defaultValue={company.contact_person || ""}
+                            placeholder="Pessoa de Contato"
+                            className="mt-1"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  
+                  <Separator />
+                  
+                  <div className="space-y-4">
                     <div>
-                      <Label htmlFor="city">Cidade</Label>
+                      <Label htmlFor="address">Endereço</Label>
                       <Input
-                        id="city"
-                        name="city"
-                        defaultValue={company.city || ""}
-                        placeholder="Cidade"
+                        id="address"
+                        name="address"
+                        defaultValue={company.address || ""}
+                        placeholder="Endereço"
+                        className="mt-1"
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="state">Estado</Label>
-                      <Input
-                        id="state"
-                        name="state"
-                        defaultValue={company.state || ""}
-                        placeholder="Estado"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="zip_code">CEP</Label>
-                      <Input
-                        id="zip_code"
-                        name="zip_code"
-                        defaultValue={company.zip_code || ""}
-                        placeholder="CEP"
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <Label htmlFor="city">Cidade</Label>
+                        <Input
+                          id="city"
+                          name="city"
+                          defaultValue={company.city || ""}
+                          placeholder="Cidade"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="state">Estado</Label>
+                        <Input
+                          id="state"
+                          name="state"
+                          defaultValue={company.state || ""}
+                          placeholder="Estado"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="zip_code">CEP</Label>
+                        <Input
+                          id="zip_code"
+                          name="zip_code"
+                          defaultValue={company.zip_code || ""}
+                          placeholder="CEP"
+                          className="mt-1"
+                        />
+                      </div>
                     </div>
                   </div>
-                  <Button type="submit" disabled={updateMutation.isPending}>
-                    {updateMutation.isPending ? "Atualizando..." : "Atualizar Empresa"}
-                  </Button>
+                  
+                  <div className="flex justify-end">
+                    <Button type="submit" disabled={updateMutation.isPending}>
+                      {updateMutation.isPending ? "Atualizando..." : "Atualizar Empresa"}
+                    </Button>
+                  </div>
                 </form>
               ) : (
                 <p>Erro ao carregar informações da empresa.</p>
@@ -251,8 +271,8 @@ const Settings = () => {
           </Card>
         </TabsContent>
         
-        <TabsContent value="appearance" className="mt-4">
-          <Card>
+        <TabsContent value="appearance" className="mt-0">
+          <Card className="shadow-sm border-muted">
             <CardHeader>
               <CardTitle>Aparência</CardTitle>
               <CardDescription>
@@ -265,8 +285,8 @@ const Settings = () => {
           </Card>
         </TabsContent>
         
-        <TabsContent value="account" className="mt-4">
-          <Card>
+        <TabsContent value="account" className="mt-0">
+          <Card className="shadow-sm border-muted">
             <CardHeader>
               <CardTitle>Conta</CardTitle>
               <CardDescription>

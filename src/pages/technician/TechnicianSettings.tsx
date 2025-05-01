@@ -34,15 +34,15 @@ const TechnicianSettings = () => {
   }
 
   return (
-    <div className="container py-6">
+    <div className="container px-4 py-6 mx-auto max-w-md">
       <h1 className="text-2xl font-bold tracking-tight mb-6">Configurações</h1>
       
       <div className="space-y-6">
-        <Card>
-          <CardHeader>
+        <Card className="shadow-sm border-muted overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/10 dark:to-blue-900/20">
             <CardTitle>Empresa</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col sm:flex-row items-center gap-4">
+          <CardContent className="flex flex-col sm:flex-row items-center gap-4 p-6">
             <Avatar className="w-20 h-20 border border-border">
               <AvatarImage src={company?.logo_url || ''} alt="Logo da empresa" />
               <AvatarFallback className="text-xl bg-primary text-primary-foreground">
@@ -65,11 +65,11 @@ const TechnicianSettings = () => {
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader>
+        <Card className="shadow-sm border-muted">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/10 dark:to-purple-900/20">
             <CardTitle>Usuário</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             <div className="space-y-4">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Email</span>
@@ -77,17 +77,17 @@ const TechnicianSettings = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Acesso</span>
-                <Badge>Técnico</Badge>
+                <Badge className="bg-primary">Técnico</Badge>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader>
+        <Card className="shadow-sm border-muted">
+          <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900/10 dark:to-gray-900/20">
             <CardTitle>Sobre o aplicativo</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-4 p-6">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Versão</span>
               <span>1.0.0</span>

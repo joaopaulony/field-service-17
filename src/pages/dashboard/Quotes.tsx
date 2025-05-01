@@ -91,8 +91,8 @@ const Quotes: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap justify-between items-center gap-4">
+    <div className="space-y-6 max-w-full">
+      <div className="flex flex-wrap justify-between items-center gap-4 bg-background sticky top-0 z-10 pb-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Orçamentos</h2>
           <p className="text-muted-foreground">
@@ -117,7 +117,11 @@ const Quotes: React.FC = () => {
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       ) : (
-        quoteSummary && <QuoteCard summary={quoteSummary} />
+        quoteSummary && (
+          <div className="bg-card rounded-lg border shadow-sm">
+            <QuoteCard summary={quoteSummary} />
+          </div>
+        )
       )}
 
       {/* Quotes Table */}
@@ -126,12 +130,14 @@ const Quotes: React.FC = () => {
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       ) : (
-        <QuoteTable
-          quotes={quotes}
-          onEdit={handleEditQuote}
-          onDelete={handleDeleteQuote}
-          onGeneratePdf={handleGeneratePdf}
-        />
+        <div className="bg-card rounded-lg border shadow-sm overflow-hidden">
+          <QuoteTable
+            quotes={quotes}
+            onEdit={handleEditQuote}
+            onDelete={handleDeleteQuote}
+            onGeneratePdf={handleGeneratePdf}
+          />
+        </div>
       )}
 
       {/* Delete Confirmation Dialog */}
