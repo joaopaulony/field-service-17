@@ -58,7 +58,7 @@ const Index = () => {
           
           <div className="bg-muted rounded-xl overflow-hidden shadow-lg">
             <img 
-              src="https://placehold.co/1200x800/0284c7/FFFFFF/png?text=Dashboard+Preview" 
+              src="/lovable-uploads/650e374b-c726-445b-a5b3-8aa1ec97af12.png" 
               alt="Dashboard Preview" 
               className="w-full h-auto"
             />
