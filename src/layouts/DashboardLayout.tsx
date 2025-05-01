@@ -9,7 +9,8 @@ import {
   Settings,
   Package,
   FileText,
-  LogOut
+  LogOut,
+  User
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,14 @@ import {
   SidebarProvider,
   useSidebar,
 } from '@/components/ui/sidebar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -143,10 +152,28 @@ const DashboardLayout: React.FC = () => {
             <div className="flex-1" />
             <div className="flex items-center gap-4">
               <ThemeSwitcher />
-              <Avatar>
-                <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>{getInitials(user?.email || '')}</AvatarFallback>
-              </Avatar>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Avatar className="cursor-pointer">
+                    <AvatarImage src="https://github.com/shadcn.png" />
+                    <AvatarFallback>{getInitials(user?.email || '')}</AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <NavLink to="/dashboard/settings" className="flex items-center">
+                      <User size={16} className="mr-2" />
+                      Perfil
+                    </NavLink>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive cursor-pointer">
+                    <LogOut size={16} className="mr-2" />
+                    Sair
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </header>
 
