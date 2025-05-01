@@ -1,35 +1,39 @@
 
-import React, { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ImagePlus, Clock } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import { UploadCloud, Camera, Loader, X } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { addWorkOrderPhoto } from '@/services/photoService';
 
 interface PhotoUploadProps {
   workOrderId: string;
-  refetch: () => void;
+  onUploadSuccess: () => void;
 }
 
-const PhotoUpload: React.FC<PhotoUploadProps> = ({ workOrderId, refetch }) => {
+const PhotoUpload: React.FC<PhotoUploadProps> = ({ workOrderId, onUploadSuccess }) => {
   const { toast } = useToast();
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [photoDescription, setPhotoDescription] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [description, setDescription] = useState('');
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const addPhotoMutation = useMutation({
-    mutationFn: () => addWorkOrderPhoto(workOrderId, photoFile!, photoDescription),
+  const uploadMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedFile) throw new Error('Nenhum arquivo selecionado');
+      return addWorkOrderPhoto(workOrderId, selectedFile, description);
+    },
     onSuccess: () => {
       toast({
         title: "Foto adicionada",
-        description: "A foto foi adicionada à ordem de serviço."
+        description: "A foto foi adicionada com sucesso."
       });
-      setPhotoFile(null);
-      setPhotoDescription('');
-      refetch();
+      resetForm();
+      onUploadSuccess();
     },
     onError: (error: any) => {
       toast({
@@ -40,59 +44,133 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ workOrderId, refetch }) => {
     }
   });
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setPhotoFile(e.target.files[0]);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleAddPhoto = async () => {
-    if (!photoFile) {
-      toast({
-        title: "Selecione uma foto",
-        description: "Por favor, selecione uma foto para adicionar."
-      });
-      return;
+  const handleCameraCapture = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
     }
-    addPhotoMutation.mutate();
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    uploadMutation.mutate();
+  };
+
+  const resetForm = () => {
+    setSelectedFile(null);
+    setDescription('');
+    setPreviewUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const cancelSelection = () => {
+    resetForm();
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Adicionar Fotos</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="photo">Foto</Label>
-          <Input type="file" id="photo" accept="image/*" onChange={handlePhotoChange} />
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {!selectedFile ? (
+        <Card className="border-dashed border-2 bg-muted/50">
+          <CardContent className="p-4 flex flex-col items-center justify-center text-center">
+            <UploadCloud className="h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">Selecione uma imagem ou tire uma foto</p>
+            
+            <div className="flex flex-wrap gap-2 mt-4 justify-center">
+              <Button
+                type="button" 
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                Selecionar arquivo
+              </Button>
+              
+              <Button
+                type="button"
+                variant="outline" 
+                size="sm"
+                onClick={handleCameraCapture}
+                className="flex items-center gap-2"
+              >
+                <Camera className="h-4 w-4" />
+                <span>Usar câmera</span>
+              </Button>
+            </div>
+            
+            <Input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          <div className="relative">
+            <img 
+              src={previewUrl || ''} 
+              alt="Preview" 
+              className="w-full h-64 object-cover rounded-md"
+            />
+            <Button
+              type="button"
+              variant="destructive"
+              size="icon"
+              className="absolute top-2 right-2"
+              onClick={cancelSelection}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="description">Descrição (opcional)</Label>
+            <Textarea
+              id="description"
+              placeholder="Adicione uma descrição para a foto..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+          
+          <div className="flex justify-end">
+            <Button 
+              type="submit" 
+              disabled={uploadMutation.isPending}
+              className="flex items-center gap-2"
+            >
+              {uploadMutation.isPending ? (
+                <>
+                  <Loader className="h-4 w-4 animate-spin" />
+                  <span>Enviando...</span>
+                </>
+              ) : (
+                <>
+                  <UploadCloud className="h-4 w-4" />
+                  <span>Enviar Foto</span>
+                </>
+              )}
+            </Button>
+          </div>
         </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="description">Descrição (opcional)</Label>
-          <Textarea 
-            id="description"
-            placeholder="Adicione uma descrição para a foto..."
-            value={photoDescription}
-            onChange={(e) => setPhotoDescription(e.target.value)}
-          />
-        </div>
-        
-        <Button onClick={handleAddPhoto} disabled={addPhotoMutation.isPending || !photoFile}>
-          {addPhotoMutation.isPending ? (
-            <>
-              <Clock className="mr-2 h-4 w-4 animate-spin" />
-              Adicionando...
-            </>
-          ) : (
-            <>
-              <ImagePlus className="mr-2 h-4 w-4" />
-              Adicionar Foto
-            </>
-          )}
-        </Button>
-      </CardContent>
-    </Card>
+      )}
+    </form>
   );
 };
 

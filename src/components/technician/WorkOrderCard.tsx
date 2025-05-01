@@ -2,102 +2,151 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  Clock, 
-  AlertTriangle, 
-  CheckCircle2, 
+  Calendar, 
   MapPin, 
-  ChevronRight,
-  CalendarClock,
-  Camera
+  User, 
+  Clock,
+  CheckCircle, 
+  AlertTriangle,
+  ArrowRight,
+  Wrench
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { WorkOrder, WorkOrderStatus } from '@/types/workOrders';
+import { Badge } from '@/components/ui/badge';
+import { WorkOrder } from '@/types/workOrders';
+import { formatCoordinates } from '@/utils/geolocationUtils';
 
 interface WorkOrderCardProps {
   workOrder: WorkOrder;
   showCompletionDetails?: boolean;
 }
 
-const WorkOrderCard: React.FC<WorkOrderCardProps> = ({ workOrder, showCompletionDetails = false }) => {
-  const getStatusIcon = (status: WorkOrderStatus) => {
-    switch (status) {
+const WorkOrderCard: React.FC<WorkOrderCardProps> = ({ 
+  workOrder,
+  showCompletionDetails = false
+}) => {
+  const formatDate = (dateString?: string | null) => {
+    if (!dateString) return 'Não agendado';
+    return new Date(dateString).toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+  
+  const getStatusBadge = () => {
+    switch (workOrder.status) {
       case 'pending':
-        return <Clock className="h-5 w-5 text-amber-500" />;
+        return (
+          <Badge className="bg-amber-500 hover:bg-amber-600 flex items-center gap-1.5">
+            <Clock className="h-3 w-3" />
+            <span>Pendente</span>
+          </Badge>
+        );
       case 'in_progress':
-        return <AlertTriangle className="h-5 w-5 text-blue-500" />;
+        return (
+          <Badge className="bg-blue-500 hover:bg-blue-600 flex items-center gap-1.5">
+            <Wrench className="h-3 w-3" />
+            <span>Em Andamento</span>
+          </Badge>
+        );
       case 'completed':
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+        return (
+          <Badge className="bg-green-500 hover:bg-green-600 flex items-center gap-1.5">
+            <CheckCircle className="h-3 w-3" />
+            <span>Concluído</span>
+          </Badge>
+        );
+      case 'canceled':
+        return (
+          <Badge variant="destructive" className="flex items-center gap-1.5">
+            <AlertTriangle className="h-3 w-3" />
+            <span>Cancelado</span>
+          </Badge>
+        );
       default:
         return null;
     }
   };
   
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'Não agendada';
-    
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  };
-  
   return (
     <Card className="overflow-hidden">
-      <Link to={`/tech/orders/${workOrder.id}`}>
-        <CardContent className="p-0">
-          <div className="p-4">
-            <div className="flex justify-between items-start mb-2">
-              <div className="flex items-center gap-2">
-                {getStatusIcon(workOrder.status)}
-                <span className="font-semibold">{workOrder.id.slice(0, 8)}</span>
-              </div>
+      <CardContent className="p-0">
+        <div className="p-4">
+          <div className="flex flex-col sm:flex-row justify-between gap-2">
+            <div>
+              <h3 className="font-semibold text-lg truncate">{workOrder.title}</h3>
+              <p className="text-sm text-muted-foreground line-clamp-2">{workOrder.description}</p>
             </div>
-            
-            <h3 className="font-medium mb-1">{workOrder.title}</h3>
-            <p className="text-sm text-muted-foreground mb-1">{workOrder.client_name || 'Cliente não informado'}</p>
-            
-            <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-              <MapPin className="h-3.5 w-3.5" />
-              <span>{workOrder.location || 'Local não informado'}</span>
-            </div>
-            
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              {showCompletionDetails ? (
-                <>
-                  <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
-                  <span>Concluído em {formatDate(workOrder.completion_date)}</span>
-                </>
-              ) : (
-                <>
-                  <CalendarClock className="h-3.5 w-3.5" />
-                  <span>{formatDate(workOrder.scheduled_date)}</span>
-                </>
-              )}
+            <div className="flex sm:flex-col items-start sm:items-end gap-2">
+              {getStatusBadge()}
             </div>
           </div>
           
-          <div className="bg-secondary/40 p-3 flex justify-between items-center">
-            {!showCompletionDetails ? (
-              workOrder.status === 'pending' ? (
-                <Button size="sm">Iniciar OS</Button>
-              ) : (
-                <Button size="sm">Continuar OS</Button>
-              )
-            ) : (
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Camera className="h-3.5 w-3.5" />
-                <span>{workOrder.photos ? workOrder.photos.length : 0} fotos</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+            {workOrder.client_name && (
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">{workOrder.client_name}</span>
               </div>
             )}
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            
+            {workOrder.location && (
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm truncate">{workOrder.location}</span>
+              </div>
+            )}
+            
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm">
+                {workOrder.scheduled_date ? formatDate(workOrder.scheduled_date) : "Não agendado"}
+              </span>
+            </div>
           </div>
-        </CardContent>
-      </Link>
+          
+          {showCompletionDetails && workOrder.completion_date && (
+            <div className="mt-4 pt-3 border-t">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span className="text-sm font-medium">Concluído em: {formatDate(workOrder.completion_date)}</span>
+              </div>
+              
+              {(workOrder.completion_latitude && workOrder.completion_longitude) && (
+                <div className="flex items-center gap-2 mt-1">
+                  <MapPin className="h-4 w-4 text-green-500" />
+                  <span className="text-xs">
+                    Local: {formatCoordinates(workOrder.completion_latitude, workOrder.completion_longitude)}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {!showCompletionDetails && (workOrder.start_latitude || workOrder.start_longitude) && (
+            <div className="mt-4 pt-3 border-t">
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-blue-500" />
+                <span className="text-xs">
+                  Localização registrada ao iniciar serviço
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      </CardContent>
+      <CardFooter className="px-4 py-3 bg-muted/30">
+        <Button variant="default" size="sm" className="ml-auto" asChild>
+          <Link to={`/tech/orders/${workOrder.id}`}>
+            <span className="mr-1">Ver Detalhes</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+      </CardFooter>
     </Card>
   );
 };
