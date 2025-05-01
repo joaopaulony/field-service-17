@@ -197,7 +197,7 @@ const CreateWorkOrder = () => {
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem value="" disabled>
+                        <SelectItem value="no_technicians" disabled>
                           Nenhum técnico cadastrado
                         </SelectItem>
                       )}
