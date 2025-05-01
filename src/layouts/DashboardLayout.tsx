@@ -23,7 +23,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { useAuth } from '@/contexts/AuthContext';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type NavItemProps = {
   to: string;
@@ -32,8 +32,8 @@ type NavItemProps = {
 };
 
 const NavItem: React.FC<NavItemProps> = ({ to, icon, label }) => {
-  const { isMobile } = useMobile();
-  const { collapsed } = useSidebar();
+  const isMobile = useIsMobile();
+  const { isCollapsed } = useSidebar();
   
   return (
     <NavLink
@@ -47,7 +47,7 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label }) => {
       }
     >
       {icon}
-      {(!collapsed || isMobile) && <span>{label}</span>}
+      {(!isCollapsed || isMobile) && <span>{label}</span>}
     </NavLink>
   );
 };
@@ -63,11 +63,11 @@ const getInitials = (name: string) => {
 };
 
 const DashboardLayout: React.FC = () => {
-  const { user, logout } = useAuth();
-  const { isMobile } = useMobile();
+  const { user, signOut } = useAuth();
+  const isMobile = useIsMobile();
 
   const handleLogout = () => {
-    logout();
+    signOut();
   };
 
   return (

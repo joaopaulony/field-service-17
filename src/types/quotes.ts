@@ -40,7 +40,9 @@ export interface QuoteItemWithDetails extends QuoteItem {
   total_price: number;
 }
 
+// Update DTO types to include company_id which is required
 export interface CreateQuoteDTO {
+  company_id: string; // Added company_id as it's required
   work_order_id?: string;
   technician_id?: string;
   client_name: string;

@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 const MOBILE_BREAKPOINT = 768
@@ -16,4 +17,10 @@ export function useIsMobile() {
   }, [])
 
   return !!isMobile
+}
+
+// Add a wrapper function with the name that's being imported elsewhere
+export const useMobile = () => {
+  const isMobile = useIsMobile();
+  return { isMobile };
 }

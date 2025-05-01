@@ -29,14 +29,14 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 
 // Other Pages
-import { Index } from './pages/Index';
+import Index from './pages/Index';
 import NotFound from './pages/NotFound';
 
 // Context Providers
 import { ThemeProvider } from './contexts/ThemeContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from './components/ui/toaster';
-import ProtectedRoute from './components/auth/ProtectedRoute';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import { PlanProvider } from './contexts/PlanContext';
 
@@ -48,7 +48,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <PlanProvider>
-          <ThemeProvider defaultTheme="light" storageKey="ui-theme">
+          <ThemeProvider>
             <Router>
               <Routes>
                 {/* Public routes */}

@@ -79,6 +79,9 @@ export const getInventoryItem = async (id: string): Promise<InventoryItemWithCat
 export const createInventoryItem = async (item: CreateInventoryItemDTO): Promise<InventoryItem | null> => {
   try {
     console.log("Creating inventory item:", item);
+    // Get the current user data to get the company_id
+    const { data: userData } = await supabase.auth.getUser();
+    
     const { data, error } = await supabase
       .from("inventory_items")
       .insert(item)
@@ -206,6 +209,9 @@ export const getInventoryCategories = async (): Promise<InventoryCategory[]> => 
 export const createInventoryCategory = async (category: CreateInventoryCategoryDTO): Promise<InventoryCategory | null> => {
   try {
     console.log("Creating inventory category:", category);
+    // Get the current user data to determine company_id
+    const { data: userData } = await supabase.auth.getUser();
+    
     const { data, error } = await supabase
       .from("inventory_categories")
       .insert(category)
@@ -354,12 +360,12 @@ export const createInventoryMovement = async (movement: CreateInventoryMovementD
       throw new Error(`Error updating item quantity: ${updateError.message}`);
     }
     
-    // Create movement record
+    // Create movement record with company_id
     const { data, error } = await supabase
       .from("inventory_movements")
       .insert({
         ...movement,
-        created_by_id: userData.user.id
+        company_id: movement.company_id
       })
       .select()
       .single();

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Bell, Package } from 'lucide-react';
+import { Bell, Package, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import WorkOrderSearch from './WorkOrderSearch';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
@@ -29,6 +29,11 @@ const TechnicianHeader: React.FC<TechnicianHeaderProps> = ({ technicianName }) =
           <Link to="/technician/inventory">
             <Button variant="outline" size="icon" className="relative">
               <Package className="h-5 w-5" />
+            </Button>
+          </Link>
+          <Link to="/technician/quotes">
+            <Button variant="outline" size="icon" className="relative">
+              <FileText className="h-5 w-5" />
             </Button>
           </Link>
           <ThemeSwitcher variant="ghost" />

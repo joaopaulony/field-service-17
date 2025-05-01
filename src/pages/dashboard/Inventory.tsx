@@ -34,9 +34,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { Loader2, FileSpreadsheet, FilePdf } from "lucide-react";
+import { Loader2, FileSpreadsheet, FileText } from "lucide-react";
 import { InventoryItemWithCategory } from "@/types/inventory";
-import { PlanFeatureAlert } from "@/components/PlanFeatureAlert";
+import PlanFeatureAlert from "@/components/PlanFeatureAlert";
 
 const Inventory: React.FC = () => {
   const navigate = useNavigate();
@@ -86,6 +86,7 @@ const Inventory: React.FC = () => {
         quantity: values.quantity,
         movement_type: values.type,
         notes: `Ajuste manual de estoque (${values.type === "in" ? "entrada" : "saída"})`,
+        company_id: selectedItem?.company_id || ""
       });
     },
     onSuccess: () => {
@@ -171,7 +172,7 @@ const Inventory: React.FC = () => {
             Exportar Excel
           </Button>
           <Button variant="outline" onClick={handleExportPDF}>
-            <FilePdf className="mr-2 h-4 w-4" />
+            <FileText className="mr-2 h-4 w-4" />
             Exportar PDF
           </Button>
           <Button onClick={() => navigate("/dashboard/inventory/new")}>

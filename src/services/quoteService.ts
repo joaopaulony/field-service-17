@@ -101,6 +101,27 @@ export const getQuote = async (id: string): Promise<QuoteWithItems | null> => {
 export const createQuote = async (quote: CreateQuoteDTO): Promise<Quote | null> => {
   try {
     console.log("Creating quote:", quote);
+    // Get the current user data to determine company_id if not provided
+    if (!quote.company_id) {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) {
+        throw new Error("User not authenticated");
+      }
+      
+      // Get the company_id from the user's company
+      const { data: companyData, error: companyError } = await supabase
+        .from("companies")
+        .select("id")
+        .eq("id", userData.user.id)
+        .single();
+        
+      if (companyError || !companyData) {
+        throw new Error("Company not found");
+      }
+      
+      quote.company_id = companyData.id;
+    }
+    
     const { data, error } = await supabase
       .from("quotes")
       .insert(quote)

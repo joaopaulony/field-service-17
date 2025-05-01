@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Quote } from '@/types/quotes';
-import { Edit, MoreHorizontal, Plus, Trash2, FilePdf, Clock, User, Calendar } from 'lucide-react';
+import { Edit, MoreHorizontal, Plus, Trash2, FileText, Clock, User, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 
@@ -144,7 +144,7 @@ const QuoteTable: React.FC<QuoteTableProps> = ({
                         <span>Editar</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => onGeneratePdf(quote.id)}>
-                        <FilePdf className="mr-2 h-4 w-4" />
+                        <FileText className="mr-2 h-4 w-4" />
                         <span>Gerar PDF</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem 

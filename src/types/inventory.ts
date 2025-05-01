@@ -50,17 +50,20 @@ export interface InventorySummary {
   discontinuedItems: number;
 }
 
-export type CreateInventoryItemDTO = Omit<InventoryItem, 'id' | 'company_id' | 'created_at' | 'updated_at'>;
+// Update DTO types to include company_id which is required
+export type CreateInventoryItemDTO = Omit<InventoryItem, 'id' | 'created_at' | 'updated_at'>;
 export type UpdateInventoryItemDTO = Partial<CreateInventoryItemDTO>;
 
-export type CreateInventoryCategoryDTO = Omit<InventoryCategory, 'id' | 'company_id' | 'created_at' | 'updated_at'>;
+export type CreateInventoryCategoryDTO = Omit<InventoryCategory, 'id' | 'created_at' | 'updated_at'>;
 export type UpdateInventoryCategoryDTO = Partial<CreateInventoryCategoryDTO>;
 
 export interface CreateInventoryMovementDTO {
+  company_id: string;
   item_id: string;
   quantity: number;
   movement_type: 'in' | 'out' | 'adjust';
   reference_type?: string;
   reference_id?: string;
   notes?: string;
+  created_by_id?: string;
 }
