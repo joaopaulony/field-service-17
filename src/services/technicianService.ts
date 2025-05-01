@@ -37,19 +37,19 @@ export const createTechnician = async (technician: CreateTechnicianDTO): Promise
     .single();
     
   if (error) throw error;
-  return data;
+  return data as unknown as Technician;
 };
 
 export const updateTechnician = async (id: string, updates: Partial<Technician>): Promise<Technician> => {
   const { data, error } = await supabase
     .from('technicians')
-    .update(updates)
+    .update(updates as any)
     .eq('id', id)
     .select()
     .single();
     
   if (error) throw error;
-  return data;
+  return data as unknown as Technician;
 };
 
 export const deleteTechnician = async (id: string): Promise<void> => {

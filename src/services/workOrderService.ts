@@ -17,7 +17,7 @@ export const fetchWorkOrders = async (): Promise<WorkOrder[]> => {
     .order('created_at', { ascending: false });
     
   if (error) throw error;
-  return data || [];
+  return data as unknown as WorkOrder[] || [];
 };
 
 export const fetchWorkOrderById = async (id: string): Promise<WorkOrder | null> => {
@@ -36,7 +36,7 @@ export const fetchWorkOrderById = async (id: string): Promise<WorkOrder | null> 
     throw error;
   }
   
-  return data;
+  return data as unknown as WorkOrder;
 };
 
 export const createWorkOrder = async (workOrder: CreateWorkOrderDTO): Promise<WorkOrder> => {
@@ -66,7 +66,7 @@ export const createWorkOrder = async (workOrder: CreateWorkOrderDTO): Promise<Wo
     .single();
     
   if (error) throw error;
-  return data;
+  return data as unknown as WorkOrder;
 };
 
 export const updateWorkOrder = async (id: string, updates: UpdateWorkOrderDTO): Promise<WorkOrder> => {
@@ -87,13 +87,13 @@ export const updateWorkOrder = async (id: string, updates: UpdateWorkOrderDTO): 
       start_longitude: updates.start_longitude,
       completion_latitude: updates.completion_latitude,
       completion_longitude: updates.completion_longitude
-    })
+    } as any)
     .eq('id', id)
     .select()
     .single();
     
   if (error) throw error;
-  return data;
+  return data as unknown as WorkOrder;
 };
 
 export const deleteWorkOrder = async (id: string): Promise<void> => {
@@ -113,13 +113,13 @@ export const startWorkOrder = async (id: string, position: GeolocationPosition):
       status: 'in_progress',
       start_latitude: position.coords.latitude,
       start_longitude: position.coords.longitude
-    })
+    } as any)
     .eq('id', id)
     .select()
     .single();
     
   if (error) throw error;
-  return data;
+  return data as unknown as WorkOrder;
 };
 
 // Complete a work order with geolocation
@@ -131,13 +131,13 @@ export const completeWorkOrder = async (id: string, position: GeolocationPositio
       completion_date: new Date().toISOString(),
       completion_latitude: position.coords.latitude,
       completion_longitude: position.coords.longitude
-    })
+    } as any)
     .eq('id', id)
     .select()
     .single();
     
   if (error) throw error;
-  return data;
+  return data as unknown as WorkOrder;
 };
 
 // Buscar ordens de serviço de um técnico específico
@@ -152,7 +152,7 @@ export const fetchTechnicianWorkOrders = async (technicianId: string): Promise<W
     .order('scheduled_date', { ascending: true });
     
   if (error) throw error;
-  return data || [];
+  return data as unknown as WorkOrder[] || [];
 };
 
 // Buscar todas as ordens de serviço com detalhes completos para exportação
@@ -167,5 +167,5 @@ export const fetchWorkOrdersForExport = async (): Promise<WorkOrder[]> => {
     .order('created_at', { ascending: false });
     
   if (error) throw error;
-  return data || [];
+  return data as unknown as WorkOrder[] || [];
 };

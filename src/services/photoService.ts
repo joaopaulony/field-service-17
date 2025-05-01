@@ -93,6 +93,10 @@ export const deleteWorkOrderPhoto = async (photoId: string) => {
       throw fetchError;
     }
 
+    if (!photo) {
+      throw new Error('Photo not found');
+    }
+
     // Delete from database
     const { error: deleteDbError } = await supabase
       .from('work_order_photos')

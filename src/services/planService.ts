@@ -65,7 +65,7 @@ export const getCompanyPlan = async (): Promise<PlanType> => {
     return 'free'; // Default to free plan if there's an error
   }
   
-  return data.plan as PlanType;
+  return (data as any).plan as PlanType;
 };
 
 // Get the company's plan limits
@@ -93,7 +93,7 @@ export const canAddTechnician = async (): Promise<boolean> => {
     return false;
   }
   
-  const planLimits = PLAN_LIMITS[company.plan as PlanType];
+  const planLimits = PLAN_LIMITS[(company as any).plan as PlanType];
   
   // Count current technicians
   const { data: technicians, error: techniciansError } = await supabase
@@ -129,7 +129,7 @@ export const canCreateWorkOrder = async (): Promise<boolean> => {
     return false;
   }
   
-  const planLimits = PLAN_LIMITS[company.plan as PlanType];
+  const planLimits = PLAN_LIMITS[(company as any).plan as PlanType];
   
   // If the plan has unlimited work orders
   if (planLimits.maxWorkOrdersPerMonth === null) {
