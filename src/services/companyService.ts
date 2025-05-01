@@ -32,9 +32,14 @@ export interface Company {
 
 export const getCompanyDetails = async (): Promise<Company | null> => {
   try {
+    console.log("Fetching company details");
     const { data: user } = await supabase.auth.getUser();
-    if (!user.user) return null;
+    if (!user.user) {
+      console.log("No authenticated user found");
+      return null;
+    }
 
+    console.log("User ID:", user.user.id);
     const { data, error } = await supabase
       .from("companies")
       .select("*")
@@ -46,6 +51,7 @@ export const getCompanyDetails = async (): Promise<Company | null> => {
       return null;
     }
 
+    console.log("Company details fetched:", data);
     return data as Company;
   } catch (error) {
     console.error("Error in getCompanyDetails:", error);
@@ -55,9 +61,19 @@ export const getCompanyDetails = async (): Promise<Company | null> => {
 
 export const updateCompany = async (updates: UpdateCompanyDTO): Promise<boolean> => {
   try {
+    console.log("Updating company with data:", updates);
     const { data: user } = await supabase.auth.getUser();
-    if (!user.user) return false;
+    if (!user.user) {
+      console.error("No authenticated user found for update");
+      toast({
+        title: "Erro ao atualizar",
+        description: "Usuário não autenticado",
+        variant: "destructive",
+      });
+      return false;
+    }
 
+    console.log("User ID for update:", user.user.id);
     const { error } = await supabase
       .from("companies")
       .update(updates)
@@ -73,6 +89,7 @@ export const updateCompany = async (updates: UpdateCompanyDTO): Promise<boolean>
       return false;
     }
 
+    console.log("Company updated successfully");
     toast({
       title: "Configurações atualizadas",
       description: "As configurações da empresa foram atualizadas com sucesso.",
@@ -91,14 +108,24 @@ export const updateCompany = async (updates: UpdateCompanyDTO): Promise<boolean>
 
 export const uploadCompanyLogo = async (file: File): Promise<string | null> => {
   try {
+    console.log("Starting logo upload process");
     const { data: user } = await supabase.auth.getUser();
-    if (!user.user) return null;
+    if (!user.user) {
+      console.error("No authenticated user found for logo upload");
+      toast({
+        title: "Erro ao fazer upload",
+        description: "Usuário não autenticado",
+        variant: "destructive",
+      });
+      return null;
+    }
 
     const fileExt = file.name.split('.').pop();
     const fileName = `${user.user.id}_${Date.now()}.${fileExt}`;
     const filePath = `company_logos/${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
+    console.log("Uploading file to path:", filePath, "in bucket: logos");
+    const { error: uploadError, data: uploadData } = await supabase.storage
       .from('logos')
       .upload(filePath, file);
 
@@ -112,16 +139,18 @@ export const uploadCompanyLogo = async (file: File): Promise<string | null> => {
       return null;
     }
 
+    console.log("Upload successful, data:", uploadData);
     const { data: publicUrl } = supabase.storage
       .from('logos')
       .getPublicUrl(filePath);
 
+    console.log("Public URL generated:", publicUrl);
     return publicUrl.publicUrl;
   } catch (error: any) {
     console.error("Error in uploadCompanyLogo:", error);
     toast({
       title: "Erro ao fazer upload",
-      description: error.message,
+        description: error.message || "Erro desconhecido ao fazer upload",
       variant: "destructive",
     });
     return null;

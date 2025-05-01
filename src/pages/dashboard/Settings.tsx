@@ -14,6 +14,8 @@ import LogoUpload from "@/components/settings/LogoUpload";
 import PlanInfoBadge from "@/components/PlanInfoBadge";
 import { Loader2 } from "lucide-react";
 import { usePlan } from "@/contexts/PlanContext";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Nome da empresa deve ter pelo menos 2 caracteres" }),
@@ -32,8 +34,9 @@ type FormValues = z.infer<typeof formSchema>;
 const Settings = () => {
   const queryClient = useQueryClient();
   const { plan, limits } = usePlan();
+  const [formError, setFormError] = React.useState<string | null>(null);
 
-  const { data: company, isLoading } = useQuery({
+  const { data: company, isLoading, error: loadingError } = useQuery({
     queryKey: ['companyDetails'],
     queryFn: getCompanyDetails,
   });
@@ -55,6 +58,7 @@ const Settings = () => {
 
   React.useEffect(() => {
     if (company) {
+      console.log("Setting form values from company data:", company);
       form.reset({
         name: company.name || '',
         email: company.email || '',
@@ -72,22 +76,52 @@ const Settings = () => {
   const updateMutation = useMutation({
     mutationFn: (data: UpdateCompanyDTO) => updateCompany(data),
     onSuccess: () => {
+      console.log("Update mutation completed successfully");
+      setFormError(null);
       queryClient.invalidateQueries({ queryKey: ['companyDetails'] });
+    },
+    onError: (error: Error) => {
+      console.error("Update mutation failed:", error);
+      setFormError(error.message || "Erro ao salvar as configurações");
     }
   });
 
   const onSubmit = (data: FormValues) => {
+    console.log("Form submitted with data:", data);
+    setFormError(null);
     updateMutation.mutate(data);
   };
 
   const handleLogoUpdate = (logoUrl: string) => {
+    console.log("Logo updated in LogoUpload component:", logoUrl);
     form.setValue('logo_url', logoUrl);
+    
+    // Optionally auto-submit form after logo update
+    if (company && logoUrl !== company.logo_url) {
+      const formData = form.getValues();
+      console.log("Auto-submitting form after logo update with data:", {...formData, logo_url: logoUrl});
+      updateMutation.mutate({...formData, logo_url: logoUrl});
+    }
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+  
+  if (loadingError) {
+    return (
+      <div className="container max-w-4xl py-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Erro ao carregar dados</AlertTitle>
+          <AlertDescription>
+            Não foi possível carregar os dados da empresa. Por favor, tente novamente mais tarde.
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
@@ -114,6 +148,14 @@ const Settings = () => {
         </div>
         <PlanInfoBadge className="mt-2 md:mt-0" />
       </div>
+      
+      {formError && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Erro ao salvar</AlertTitle>
+          <AlertDescription>{formError}</AlertDescription>
+        </Alert>
+      )}
       
       <div className="grid gap-6">
         <Form {...form}>
