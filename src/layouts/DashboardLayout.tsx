@@ -1,103 +1,145 @@
 
-import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import React from 'react';
+import { Outlet, NavLink } from 'react-router-dom';
+import {
+  LayoutDashboard,
+  Users,
+  Clipboard,
+  BarChart3,
+  Settings,
+  Package,
+  FileText,
+  LogOut
+} from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
   SidebarProvider,
-  SidebarTrigger,
+  useSidebar,
 } from '@/components/ui/sidebar';
-import { ThemeSwitcher } from '@/components/ThemeSwitcher';
-import { Menu } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
+import { useMobile } from '@/hooks/use-mobile';
 
-const DashboardLayout = () => {
-  const { signOut, user } = useAuth();
-  const navigate = useNavigate();
+type NavItemProps = {
+  to: string;
+  icon: React.ReactNode;
+  label: string;
+};
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/login');
-  };
+const NavItem: React.FC<NavItemProps> = ({ to, icon, label }) => {
+  const { isMobile } = useMobile();
+  const { collapsed } = useSidebar();
+  
+  return (
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+          isActive
+            ? 'bg-muted text-primary'
+            : 'hover:bg-muted/80 text-muted-foreground'
+        }`
+      }
+    >
+      {icon}
+      {(!collapsed || isMobile) && <span>{label}</span>}
+    </NavLink>
+  );
+};
 
-  const getInitials = (name: string): string => {
-    if (!name) return "??";
-    return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase()
-      .substring(0, 2);
+const getInitials = (name: string) => {
+  if (!name) return '?';
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .substring(0, 2);
+};
+
+const DashboardLayout: React.FC = () => {
+  const { user, logout } = useAuth();
+  const { isMobile } = useMobile();
+
+  const handleLogout = () => {
+    logout();
   };
 
   return (
     <SidebarProvider>
       <div className="min-h-screen flex">
         <Sidebar className="h-screen">
+          <SidebarHeader>
+            <div className="flex items-center gap-2 p-2">
+              <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-bold">
+                OS
+              </div>
+              <span className="font-semibold">OrderSys</span>
+            </div>
+          </SidebarHeader>
+          
           <SidebarContent>
-            <div className="flex flex-col h-full">
-              <div className="p-4 flex items-center justify-center">
-                <Link to="/dashboard" className="flex items-center gap-2 font-bold">
-                  FieldService
-                </Link>
-              </div>
-
-              <div className="flex-grow p-4">
-                <ul className="space-y-2">
-                  <li>
-                    <Link to="/dashboard" className="block px-4 py-2 rounded-md hover:bg-accent hover:text-accent-foreground">
-                      Dashboard
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/dashboard/work-orders" className="block px-4 py-2 rounded-md hover:bg-accent hover:text-accent-foreground">
-                      Ordens de Serviço
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/dashboard/technicians" className="block px-4 py-2 rounded-md hover:bg-accent hover:text-accent-foreground">
-                      Técnicos
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/dashboard/reports" className="block px-4 py-2 rounded-md hover:bg-accent hover:text-accent-foreground">
-                      Relatórios
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/dashboard/settings" className="block px-4 py-2 rounded-md hover:bg-accent hover:text-accent-foreground">
-                      Configurações
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="p-4 border-t border-border">
-                <Button variant="ghost" className="w-full justify-start gap-2" onClick={handleSignOut}>
-                  <LogOut className="w-4 h-4" />
-                  Sair
-                </Button>
-              </div>
+            <div className="space-y-1">
+              <NavItem
+                to="/dashboard"
+                icon={<LayoutDashboard size={20} />}
+                label="Dashboard"
+              />
+              <NavItem
+                to="/dashboard/technicians"
+                icon={<Users size={20} />}
+                label="Técnicos"
+              />
+              <NavItem
+                to="/dashboard/work-orders"
+                icon={<Clipboard size={20} />}
+                label="Ordens de Serviço"
+              />
+              <NavItem
+                to="/dashboard/inventory"
+                icon={<Package size={20} />}
+                label="Estoque"
+              />
+              <NavItem
+                to="/dashboard/quotes"
+                icon={<FileText size={20} />}
+                label="Orçamentos"
+              />
+              <NavItem
+                to="/dashboard/reports"
+                icon={<BarChart3 size={20} />}
+                label="Relatórios"
+              />
+              <NavItem
+                to="/dashboard/settings"
+                icon={<Settings size={20} />}
+                label="Configurações"
+              />
             </div>
           </SidebarContent>
+          
+          <SidebarFooter>
+            {isMobile && (
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={handleLogout}
+              >
+                <LogOut size={16} className="mr-2" />
+                Sair
+              </Button>
+            )}
+          </SidebarFooter>
         </Sidebar>
 
-        <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="border-b border-border h-14 flex items-center px-6 justify-between">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger>
-                <Menu className="w-6 h-6" />
-              </SidebarTrigger>
-              <Link to="/dashboard" className="font-bold">
-                Dashboard
-              </Link>
-            </div>
-            
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <header className="h-14 flex items-center gap-4 border-b bg-background px-4 lg:px-6">
+            <div className="flex-1" />
             <div className="flex items-center gap-4">
               <ThemeSwitcher />
               <Avatar>
@@ -107,7 +149,7 @@ const DashboardLayout = () => {
             </div>
           </header>
 
-          <main className="flex-1 overflow-auto p-6">
+          <main className="flex-1 overflow-auto p-4 lg:p-6">
             <Outlet />
           </main>
         </div>

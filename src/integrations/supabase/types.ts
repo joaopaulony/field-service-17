@@ -57,6 +57,285 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory_categories: {
+        Row: {
+          company_id: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_categories_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_items: {
+        Row: {
+          category_id: string | null
+          company_id: string
+          cost_price: number
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          min_quantity: number
+          name: string
+          quantity: number
+          sku: string | null
+          status: Database["public"]["Enums"]["inventory_status"]
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          company_id: string
+          cost_price?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          min_quantity?: number
+          name: string
+          quantity?: number
+          sku?: string | null
+          status?: Database["public"]["Enums"]["inventory_status"]
+          unit_price?: number
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          company_id?: string
+          cost_price?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          min_quantity?: number
+          name?: string
+          quantity?: number
+          sku?: string | null
+          status?: Database["public"]["Enums"]["inventory_status"]
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_items_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_movements: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by_id: string | null
+          id: string
+          item_id: string
+          movement_type: string
+          notes: string | null
+          quantity: number
+          reference_id: string | null
+          reference_type: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by_id?: string | null
+          id?: string
+          item_id: string
+          movement_type: string
+          notes?: string | null
+          quantity: number
+          reference_id?: string | null
+          reference_type?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by_id?: string | null
+          id?: string
+          item_id?: string
+          movement_type?: string
+          notes?: string | null
+          quantity?: number
+          reference_id?: string | null
+          reference_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_movements_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_movements_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_items: {
+        Row: {
+          created_at: string
+          description: string
+          discount_percentage: number | null
+          id: string
+          inventory_item_id: string | null
+          quantity: number
+          quote_id: string
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          discount_percentage?: number | null
+          id?: string
+          inventory_item_id?: string | null
+          quantity?: number
+          quote_id: string
+          unit_price?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          discount_percentage?: number | null
+          id?: string
+          inventory_item_id?: string | null
+          quantity?: number
+          quote_id?: string
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_items_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_items_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quotes: {
+        Row: {
+          address: string | null
+          client_email: string | null
+          client_name: string
+          client_phone: string | null
+          company_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          status: string
+          technician_id: string | null
+          total_amount: number
+          updated_at: string
+          valid_until: string | null
+          work_order_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          client_email?: string | null
+          client_name: string
+          client_phone?: string | null
+          company_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          technician_id?: string | null
+          total_amount?: number
+          updated_at?: string
+          valid_until?: string | null
+          work_order_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          client_email?: string | null
+          client_name?: string
+          client_phone?: string | null
+          company_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          technician_id?: string | null
+          total_amount?: number
+          updated_at?: string
+          valid_until?: string | null
+          work_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technicians"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       technicians: {
         Row: {
           active: boolean
@@ -216,6 +495,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      inventory_status: "active" | "discontinued" | "low_stock"
       work_order_status: "pending" | "in_progress" | "completed" | "canceled"
     }
     CompositeTypes: {
@@ -332,6 +612,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      inventory_status: ["active", "discontinued", "low_stock"],
       work_order_status: ["pending", "in_progress", "completed", "canceled"],
     },
   },

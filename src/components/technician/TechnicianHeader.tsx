@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
-import { Bell } from 'lucide-react';
+import { Bell, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import WorkOrderSearch from './WorkOrderSearch';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { Link } from 'react-router-dom';
 
 interface TechnicianHeaderProps {
   technicianName: string;
@@ -25,6 +26,11 @@ const TechnicianHeader: React.FC<TechnicianHeaderProps> = ({ technicianName }) =
         </div>
         
         <div className="flex items-center gap-2">
+          <Link to="/technician/inventory">
+            <Button variant="outline" size="icon" className="relative">
+              <Package className="h-5 w-5" />
+            </Button>
+          </Link>
           <ThemeSwitcher variant="ghost" />
           <Button variant="ghost" size="icon">
             <Bell className="h-5 w-5" />
