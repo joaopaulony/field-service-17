@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   WorkOrder, 
   CreateWorkOrderDTO, 
-  UpdateWorkOrderDTO 
+  UpdateWorkOrderDTO,
+  WorkOrderStatus 
 } from "@/types/workOrders";
 import { canCreateWorkOrder } from "@/services/planService";
 
@@ -176,7 +177,7 @@ export const fetchTechnicianWorkOrders = async (technicianId: string): Promise<W
 };
 
 // Buscar todas as ordens de serviço por status
-export const fetchWorkOrdersByStatus = async (status: string): Promise<WorkOrder[]> => {
+export const fetchWorkOrdersByStatus = async (status: WorkOrderStatus): Promise<WorkOrder[]> => {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) throw new Error('Usuário não autenticado');
