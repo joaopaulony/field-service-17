@@ -31,7 +31,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 const Settings = () => {
   const queryClient = useQueryClient();
-  const { currentPlan } = usePlan();
+  const { plan, limits } = usePlan();
 
   const { data: company, isLoading } = useQuery({
     queryKey: ['companyDetails'],
@@ -91,6 +91,17 @@ const Settings = () => {
       </div>
     );
   }
+
+  // Map plan types to display names
+  const planDisplayNames: Record<string, { name: string, description: string }> = {
+    'free': { name: 'Gratuito', description: 'Plano básico com recursos limitados' },
+    'basic': { name: 'Básico', description: 'Mais técnicos e ordens ilimitadas' },
+    'professional': { name: 'Profissional', description: 'Recursos avançados e mais técnicos' },
+    'enterprise': { name: 'Empresarial', description: 'Recursos completos e suporte dedicado' }
+  };
+
+  const currentPlanDisplay = planDisplayNames[plan] || 
+    { name: 'Gratuito', description: 'Plano básico com recursos limitados' };
 
   return (
     <div className="container max-w-4xl py-6">
@@ -275,10 +286,10 @@ const Settings = () => {
                 <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                   <div>
                     <h3 className="text-lg font-medium">
-                      Plano atual: <span className="font-semibold text-primary">{currentPlan?.name || 'Gratuito'}</span>
+                      Plano atual: <span className="font-semibold text-primary">{currentPlanDisplay.name}</span>
                     </h3>
                     <p className="text-muted-foreground mt-1">
-                      {currentPlan?.description || 'Plano básico com recursos limitados'}
+                      {currentPlanDisplay.description}
                     </p>
                   </div>
                   
