@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -66,7 +65,7 @@ const Inventory: React.FC = () => {
   const [stockAdjustment, setStockAdjustment] = useState(0);
   const [stockMovementType, setStockMovementType] = useState<"in" | "out">("in");
   const [isSubmittingMovement, setIsSubmittingMovement] = useState(false);
-  const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+  const [showPlanAlert, setShowPlanAlert] = useState(false);
 
   // Mutations
   const deleteItemMutation = useMutation({
@@ -287,13 +286,13 @@ const Inventory: React.FC = () => {
       </Dialog>
 
       {/* Plan Feature Alert */}
-      <PlanFeatureAlert
-        open={isPlanModalOpen}
-        onOpenChange={setIsPlanModalOpen}
-        title="Funcionalidade Premium"
-        description="Atualize seu plano para acessar todos os recursos de gerenciamento de estoque."
-        actionLabel="Atualizar Plano"
-      />
+      {showPlanAlert && (
+        <PlanFeatureAlert
+          title="Funcionalidade Premium"
+          description="Atualize seu plano para acessar todos os recursos de gerenciamento de estoque."
+          showUpgradeButton={true}
+        />
+      )}
     </div>
   );
 };

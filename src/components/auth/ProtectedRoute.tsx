@@ -1,13 +1,17 @@
 
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  routeType?: 'company' | 'technician';
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+  children, 
+  routeType = 'company' 
+}) => {
   const { user, loading } = useAuth();
   
   if (loading) {
@@ -22,5 +26,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <Navigate to="/login" />;
   }
   
-  return <>{children}</>;
+  // If route type checking is needed, implement it here
+  // For example, checking if user.role matches routeType
+  
+  return children ? <>{children}</> : <Outlet />;
 };
+
+export default ProtectedRoute;

@@ -57,35 +57,39 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 
                 {/* Dashboard routes */}
-                <Route element={<ProtectedRoute routeType="company" />}>
-                  <Route element={<DashboardLayout />}>
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/dashboard/technicians" element={<Technicians />} />
-                    <Route path="/dashboard/work-orders" element={<WorkOrders />} />
-                    <Route path="/dashboard/work-orders/new" element={<CreateWorkOrder />} />
-                    <Route path="/dashboard/work-orders/:id" element={<WorkOrderDetails />} />
-                    <Route path="/dashboard/reports" element={<Reports />} />
-                    <Route path="/dashboard/settings" element={<Settings />} />
-                    
-                    {/* Inventory routes */}
-                    <Route path="/dashboard/inventory" element={<Inventory />} />
-                    <Route path="/dashboard/inventory/new" element={<InventoryForm />} />
-                    <Route path="/dashboard/inventory/:id" element={<InventoryForm />} />
-                    
-                    {/* Quotes routes */}
-                    <Route path="/dashboard/quotes" element={<Quotes />} />
-                  </Route>
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <DashboardLayout />
+                  </ProtectedRoute>
+                }>
+                  <Route index element={<Dashboard />} />
+                  <Route path="technicians" element={<Technicians />} />
+                  <Route path="work-orders" element={<WorkOrders />} />
+                  <Route path="work-orders/new" element={<CreateWorkOrder />} />
+                  <Route path="work-orders/:id" element={<WorkOrderDetails />} />
+                  <Route path="reports" element={<Reports />} />
+                  <Route path="settings" element={<Settings />} />
+                  
+                  {/* Inventory routes */}
+                  <Route path="inventory" element={<Inventory />} />
+                  <Route path="inventory/new" element={<InventoryForm />} />
+                  <Route path="inventory/:id" element={<InventoryForm />} />
+                  
+                  {/* Quotes routes */}
+                  <Route path="quotes" element={<Quotes />} />
                 </Route>
                 
                 {/* Technician routes */}
-                <Route element={<ProtectedRoute routeType="technician" />}>
-                  <Route element={<MobileLayout />}>
-                    <Route path="/technician" element={<TechnicianDashboard />} />
-                    <Route path="/technician/work-order/:id" element={<WorkOrderView />} />
-                    <Route path="/technician/settings" element={<TechnicianSettings />} />
-                    <Route path="/technician/inventory" element={<TechnicianInventory />} />
-                    <Route path="/technician/quotes" element={<TechnicianQuotes />} />
-                  </Route>
+                <Route path="/technician" element={
+                  <ProtectedRoute>
+                    <MobileLayout />
+                  </ProtectedRoute>
+                }>
+                  <Route index element={<TechnicianDashboard />} />
+                  <Route path="work-order/:id" element={<WorkOrderView />} />
+                  <Route path="settings" element={<TechnicianSettings />} />
+                  <Route path="inventory" element={<TechnicianInventory />} />
+                  <Route path="quotes" element={<TechnicianQuotes />} />
                 </Route>
                 
                 {/* Catch-all route */}

@@ -33,7 +33,8 @@ type NavItemProps = {
 
 const NavItem: React.FC<NavItemProps> = ({ to, icon, label }) => {
   const isMobile = useIsMobile();
-  const { isCollapsed } = useSidebar();
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
   
   return (
     <NavLink

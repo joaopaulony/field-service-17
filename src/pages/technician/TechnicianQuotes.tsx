@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getQuotes, generateQuotePDF } from '@/services/quoteService';
@@ -6,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Banknote, Search, Calendar, FileText, FilePdf, User } from 'lucide-react';
+import { Banknote, Search, Calendar, FileText, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
 
@@ -130,7 +129,7 @@ const TechnicianQuotes: React.FC = () => {
                   className="gap-1"
                   onClick={() => handleGeneratePdf(quote.id)}
                 >
-                  <FilePdf className="h-4 w-4" />
+                  <FileText className="h-4 w-4" />
                   PDF
                 </Button>
               </CardFooter>
