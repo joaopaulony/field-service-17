@@ -1,13 +1,21 @@
 
 import React from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Clipboard, Home, LogOut, Settings, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 
 const MobileLayout: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
   
   const isActive = (path: string) => location.pathname === path;
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/login');
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -54,13 +62,13 @@ const MobileLayout: React.FC = () => {
             <span className="text-xs mt-1">Ajustes</span>
           </Link>
           
-          <Link 
-            to="/login" 
-            className="flex flex-col items-center justify-center py-3 px-2 text-muted-foreground"
+          <button 
+            onClick={handleSignOut}
+            className="flex flex-col items-center justify-center py-3 px-2 text-muted-foreground w-full"
           >
             <LogOut size={20} />
             <span className="text-xs mt-1">Sair</span>
-          </Link>
+          </button>
         </div>
       </footer>
     </div>

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDown, Clipboard, Home, LayoutDashboard, LogOut, Menu, Settings, UserPlus, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -12,10 +12,19 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useAuth } from '@/contexts/AuthContext';
 
 const DashboardLayout: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
+  
   const isActive = (path: string) => location.pathname === path;
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/login');
+  };
 
   const NavItem = ({ to, icon: Icon, label }: { to: string; icon: any; label: string }) => (
     <Link
@@ -73,11 +82,9 @@ const DashboardLayout: React.FC = () => {
                 <span>Minha Conta</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/login" className="flex items-center cursor-pointer">
-                  <LogOut size={16} className="mr-2" />
-                  <span>Sair</span>
-                </Link>
+              <DropdownMenuItem onClick={handleSignOut}>
+                <LogOut size={16} className="mr-2" />
+                <span>Sair</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -135,11 +142,14 @@ const DashboardLayout: React.FC = () => {
                       <span>Minha Conta</span>
                     </Link>
                   </Button>
-                  <Button variant="outline" size="sm" className="justify-start" asChild>
-                    <Link to="/login">
-                      <LogOut size={16} className="mr-2" />
-                      <span>Sair</span>
-                    </Link>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="justify-start"
+                    onClick={handleSignOut}
+                  >
+                    <LogOut size={16} className="mr-2" />
+                    <span>Sair</span>
                   </Button>
                 </div>
               </div>
