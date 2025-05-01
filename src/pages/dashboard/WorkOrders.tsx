@@ -186,33 +186,35 @@ const WorkOrders = () => {
       />
 
       {/* Status Tabs and View Switching */}
-      <div className="flex justify-between items-center">
-        <Tabs defaultValue="all" value={statusFilter} onValueChange={setStatusFilter} className="w-full">
-          <TabsList className="grid grid-cols-5 md:w-fit">
-            <TabsTrigger value="all" className="relative">
-              Todas
-              <span className="ml-1 text-xs">{statusCounts.all}</span>
-            </TabsTrigger>
-            <TabsTrigger value="pending" className="relative">
-              Pendentes
-              <span className="ml-1 text-xs">{statusCounts.pending}</span>
-            </TabsTrigger>
-            <TabsTrigger value="in_progress" className="relative">
-              Em Andamento
-              <span className="ml-1 text-xs">{statusCounts.in_progress}</span>
-            </TabsTrigger>
-            <TabsTrigger value="completed" className="relative">
-              Concluídas
-              <span className="ml-1 text-xs">{statusCounts.completed}</span>
-            </TabsTrigger>
-            <TabsTrigger value="canceled" className="relative">
-              Canceladas
-              <span className="ml-1 text-xs">{statusCounts.canceled}</span>
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+        <div className="overflow-x-auto -mx-6 px-6 sm:mx-0 sm:px-0 sm:w-auto">
+          <Tabs defaultValue="all" value={statusFilter} onValueChange={setStatusFilter} className="w-full min-w-max">
+            <TabsList className="grid grid-cols-5 w-full">
+              <TabsTrigger value="all" className="relative whitespace-nowrap">
+                Todas
+                <span className="ml-1 text-xs">{statusCounts.all}</span>
+              </TabsTrigger>
+              <TabsTrigger value="pending" className="relative whitespace-nowrap">
+                Pendentes
+                <span className="ml-1 text-xs">{statusCounts.pending}</span>
+              </TabsTrigger>
+              <TabsTrigger value="in_progress" className="relative whitespace-nowrap">
+                Em Andamento
+                <span className="ml-1 text-xs">{statusCounts.in_progress}</span>
+              </TabsTrigger>
+              <TabsTrigger value="completed" className="relative whitespace-nowrap">
+                Concluídas
+                <span className="ml-1 text-xs">{statusCounts.completed}</span>
+              </TabsTrigger>
+              <TabsTrigger value="canceled" className="relative whitespace-nowrap">
+                Canceladas
+                <span className="ml-1 text-xs">{statusCounts.canceled}</span>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
         
-        <div className="hidden md:flex">
+        <div className="sm:flex hidden">
           <Tabs value={viewMode} onValueChange={setViewMode} className="ml-auto">
             <TabsList>
               <TabsTrigger value="table">Tabela</TabsTrigger>
@@ -223,6 +225,19 @@ const WorkOrders = () => {
             </TabsList>
           </Tabs>
         </div>
+      </div>
+      
+      {/* Mobile view toggle */}
+      <div className="sm:hidden flex justify-center">
+        <Tabs value={viewMode} onValueChange={setViewMode} className="w-full">
+          <TabsList className="grid grid-cols-2 w-full">
+            <TabsTrigger value="table">Tabela</TabsTrigger>
+            <TabsTrigger value="map">
+              <MapPin className="h-4 w-4 mr-1" />
+              Mapa
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
       
       {/* Content based on View Mode */}

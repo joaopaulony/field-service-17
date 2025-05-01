@@ -61,8 +61,8 @@ export const AdvancedFilters: React.FC<FiltersProps> = ({
       
       <div className="flex flex-wrap gap-2">
         <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-          <SelectTrigger className="w-[180px] max-w-full">
-            <div className="flex items-center gap-2">
+          <SelectTrigger className="w-[180px] max-w-full sm:w-auto">
+            <div className="flex items-center gap-2 truncate">
               <span>Status</span>
             </div>
           </SelectTrigger>
@@ -79,13 +79,13 @@ export const AdvancedFilters: React.FC<FiltersProps> = ({
           <PopoverTrigger asChild>
             <Button variant="outline" className="flex items-center gap-2">
               <Filter className="h-4 w-4" />
-              <span>Filtros</span>
+              <span className="sm:inline hidden">Filtros</span>
               {activeFiltersCount > 0 && (
                 <Badge className="ml-1 h-5 w-5 p-0 flex items-center justify-center">{activeFiltersCount}</Badge>
               )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80">
+          <PopoverContent className="w-[calc(100vw-2rem)] sm:w-80 max-w-sm">
             <div className="space-y-4">
               <h4 className="font-medium">Filtros Avançados</h4>
               <Separator />

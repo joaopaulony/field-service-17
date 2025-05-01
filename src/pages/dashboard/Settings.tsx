@@ -1,362 +1,283 @@
-
 import React from 'react';
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { useTheme } from '@/contexts/ThemeContext';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { getCompanyDetails, updateCompany, uploadCompanyLogo } from "@/services/companyService";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getCompanyDetails, updateCompany, UpdateCompanyDTO } from "@/services/companyService";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 import LogoUpload from "@/components/settings/LogoUpload";
-import PlanInfoBadge from "@/components/PlanInfoBadge";
-import { Loader2 } from "lucide-react";
-import { usePlan } from "@/contexts/PlanContext";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
 
-const formSchema = z.object({
-  name: z.string().min(2, { message: "Nome da empresa deve ter pelo menos 2 caracteres" }),
-  email: z.string().email({ message: "Email inválido" }).optional().or(z.literal('')),
-  phone: z.string().optional().or(z.literal('')),
-  contact_person: z.string().optional().or(z.literal('')),
-  address: z.string().optional().or(z.literal('')),
-  city: z.string().optional().or(z.literal('')),
-  state: z.string().optional().or(z.literal('')),
-  zip_code: z.string().optional().or(z.literal('')),
-  logo_url: z.string().optional().or(z.literal('')),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+const AppearanceSettings = () => {
+  const { theme, setTheme } = useTheme();
+  
+  return (
+    <div className="space-y-6">
+      <h3 className="text-lg font-medium">Aparência</h3>
+      
+      <RadioGroup value={theme} onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'tech')}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <RadioGroupItem id="light" value="light" className="sr-only peer" />
+            <Label 
+              htmlFor="light" 
+              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-white p-4 hover:bg-gray-50 hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 [&:has([data-state=checked])]:border-primary"
+            >
+              <div className="w-full mb-4">
+                <div className="rounded-md border border-gray-200 bg-gray-50 p-2 mb-2">
+                  <div className="h-2 w-24 rounded-lg bg-gray-300" />
+                </div>
+                <div className="h-8 w-8 rounded-full bg-blue-500 mx-auto" />
+              </div>
+              <span className="text-sm font-medium">Claro</span>
+            </Label>
+          </div>
+          
+          <div>
+            <RadioGroupItem id="dark" value="dark" className="sr-only peer" />
+            <Label 
+              htmlFor="dark" 
+              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-gray-950 p-4 hover:bg-gray-900 hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 [&:has([data-state=checked])]:border-primary"
+            >
+              <div className="w-full mb-4">
+                <div className="rounded-md border border-gray-700 bg-gray-800 p-2 mb-2">
+                  <div className="h-2 w-24 rounded-lg bg-gray-600" />
+                </div>
+                <div className="h-8 w-8 rounded-full bg-blue-500 mx-auto" />
+              </div>
+              <span className="text-sm font-medium text-white">Escuro</span>
+            </Label>
+          </div>
+          
+          <div>
+            <RadioGroupItem id="tech" value="tech" className="sr-only peer" />
+            <Label 
+              htmlFor="tech" 
+              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-sky-50 p-4 hover:bg-sky-100 hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 [&:has([data-state=checked])]:border-primary"
+            >
+              <div className="w-full mb-4">
+                <div className="rounded-md border border-cyan-200 bg-white p-2 mb-2">
+                  <div className="h-2 w-24 rounded-lg bg-cyan-300" />
+                </div>
+                <div className="h-8 w-8 rounded-full bg-cyan-500 mx-auto" />
+              </div>
+              <span className="text-sm font-medium">Técnico</span>
+            </Label>
+          </div>
+        </div>
+      </RadioGroup>
+    </div>
+  );
+};
 
 const Settings = () => {
+  const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { plan, limits } = usePlan();
-  const [formError, setFormError] = React.useState<string | null>(null);
 
-  const { data: company, isLoading, error: loadingError } = useQuery({
-    queryKey: ['companyDetails'],
+  const { data: company, isLoading } = useQuery({
+    queryKey: ["company"],
     queryFn: getCompanyDetails,
   });
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      phone: '',
-      contact_person: '',
-      address: '',
-      city: '',
-      state: '',
-      zip_code: '',
-      logo_url: '',
-    },
-  });
-
-  React.useEffect(() => {
-    if (company) {
-      console.log("Setting form values from company data:", company);
-      form.reset({
-        name: company.name || '',
-        email: company.email || '',
-        phone: company.phone || '',
-        contact_person: company.contact_person || '',
-        address: company.address || '',
-        city: company.city || '',
-        state: company.state || '',
-        zip_code: company.zip_code || '',
-        logo_url: company.logo_url || '',
-      });
-    }
-  }, [company, form]);
-
-  const updateMutation = useMutation({
-    mutationFn: (data: UpdateCompanyDTO) => updateCompany(data),
+  const updateMutation = useMutation(updateCompany, {
     onSuccess: () => {
-      console.log("Update mutation completed successfully");
-      setFormError(null);
-      queryClient.invalidateQueries({ queryKey: ['companyDetails'] });
+      queryClient.invalidateQueries({ queryKey: ["company"] });
+      toast({
+        title: "Empresa atualizada",
+        description: "As informações da empresa foram atualizadas com sucesso.",
+      });
     },
-    onError: (error: Error) => {
-      console.error("Update mutation failed:", error);
-      setFormError(error.message || "Erro ao salvar as configurações");
-    }
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao atualizar empresa",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
-  const onSubmit = (data: FormValues) => {
-    console.log("Form submitted with data:", data);
-    setFormError(null);
-    updateMutation.mutate(data);
+  const handleUpdateCompany = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!company) return;
+
+    const formData = new FormData(e.currentTarget);
+    const updates = {
+      name: formData.get("name") as string,
+      email: formData.get("email") as string,
+      phone: formData.get("phone") as string,
+      address: formData.get("address") as string,
+      city: formData.get("city") as string,
+      state: formData.get("state") as string,
+      zip_code: formData.get("zip_code") as string,
+      contact_person: formData.get("contact_person") as string,
+    };
+
+    updateMutation.mutate(updates);
   };
 
-  const handleLogoUpdate = (logoUrl: string) => {
-    console.log("Logo updated in LogoUpload component:", logoUrl);
-    form.setValue('logo_url', logoUrl);
-    
-    // Optionally auto-submit form after logo update
-    if (company && logoUrl !== company.logo_url) {
-      const formData = form.getValues();
-      console.log("Auto-submitting form after logo update with data:", {...formData, logo_url: logoUrl});
-      updateMutation.mutate({...formData, logo_url: logoUrl});
-    }
+  const handleLogoUpdate = (url: string) => {
+    if (!company) return;
+    updateMutation.mutate({ logo_url: url });
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
   
-  if (loadingError) {
-    return (
-      <div className="container max-w-4xl py-6">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Erro ao carregar dados</AlertTitle>
-          <AlertDescription>
-            Não foi possível carregar os dados da empresa. Por favor, tente novamente mais tarde.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
-  // Map plan types to display names
-  const planDisplayNames: Record<string, { name: string, description: string }> = {
-    'free': { name: 'Gratuito', description: 'Plano básico com recursos limitados' },
-    'basic': { name: 'Básico', description: 'Mais técnicos e ordens ilimitadas' },
-    'professional': { name: 'Profissional', description: 'Recursos avançados e mais técnicos' },
-    'enterprise': { name: 'Empresarial', description: 'Recursos completos e suporte dedicado' }
-  };
-
-  const currentPlanDisplay = planDisplayNames[plan] || 
-    { name: 'Gratuito', description: 'Plano básico com recursos limitados' };
-
   return (
-    <div className="container max-w-4xl py-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Configurações</h1>
-          <p className="text-muted-foreground">
-            Gerencie as configurações da sua empresa
-          </p>
-        </div>
-        <PlanInfoBadge className="mt-2 md:mt-0" />
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Configurações</h1>
+        <p className="text-muted-foreground">
+          Gerencie as configurações da sua empresa e do aplicativo.
+        </p>
       </div>
       
-      {formError && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Erro ao salvar</AlertTitle>
-          <AlertDescription>{formError}</AlertDescription>
-        </Alert>
-      )}
-      
-      <div className="grid gap-6">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Informações da Empresa</CardTitle>
-                <CardDescription>
-                  Informações básicas sobre sua empresa
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-6">
-                <div className="flex flex-col md:flex-row gap-8">
-                  <div className="flex-1">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Nome da empresa</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Nome da empresa" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Email" type="email" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="phone"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Telefone</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Telefone" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+      <Tabs defaultValue="company">
+        <TabsList className="w-full sm:w-auto grid grid-cols-3">
+          <TabsTrigger value="company">Empresa</TabsTrigger>
+          <TabsTrigger value="appearance">Aparência</TabsTrigger>
+          <TabsTrigger value="account">Conta</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="company" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Informações da Empresa</CardTitle>
+              <CardDescription>
+                Atualize as informações da sua empresa.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {isLoading ? (
+                <p>Carregando informações da empresa...</p>
+              ) : company ? (
+                <form onSubmit={handleUpdateCompany} className="space-y-4">
+                  <LogoUpload
+                    currentLogo={company.logo_url || ""}
+                    onLogoUpdate={handleLogoUpdate}
+                    companyName={company.name}
+                  />
+                  <Separator />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="name">Nome da Empresa</Label>
+                      <Input
+                        id="name"
+                        name="name"
+                        defaultValue={company.name}
+                        placeholder="Nome da empresa"
                       />
                     </div>
-                    
-                    <FormField
-                      control={form.control}
-                      name="contact_person"
-                      render={({ field }) => (
-                        <FormItem className="mt-4">
-                          <FormLabel>Pessoa de contato</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Nome do responsável" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div>
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        defaultValue={company.email || ""}
+                        placeholder="Email"
+                      />
+                    </div>
                   </div>
-                  
-                  <div className="flex flex-col items-center justify-start">
-                    <FormField
-                      control={form.control}
-                      name="logo_url"
-                      render={({ field }) => (
-                        <FormItem>
-                          <LogoUpload 
-                            currentLogo={field.value} 
-                            onLogoUpdate={handleLogoUpdate}
-                            companyName={form.getValues('name')}
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="phone">Telefone</Label>
+                      <Input
+                        id="phone"
+                        name="phone"
+                        defaultValue={company.phone || ""}
+                        placeholder="Telefone"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="contact_person">Pessoa de Contato</Label>
+                      <Input
+                        id="contact_person"
+                        name="contact_person"
+                        defaultValue={company.contact_person || ""}
+                        placeholder="Pessoa de Contato"
+                      />
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Endereço</CardTitle>
-                <CardDescription>
-                  Informações de localização da sua empresa
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-6">
-                <FormField
-                  control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Endereço</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Endereço" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Cidade</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Cidade" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="state"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Estado</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Estado" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="zip_code"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>CEP</FormLabel>
-                        <FormControl>
-                          <Input placeholder="CEP" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Plano</CardTitle>
-                <CardDescription>
-                  Informações sobre o seu plano atual
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-medium">
-                      Plano atual: <span className="font-semibold text-primary">{currentPlanDisplay.name}</span>
-                    </h3>
-                    <p className="text-muted-foreground mt-1">
-                      {currentPlanDisplay.description}
-                    </p>
+                    <Label htmlFor="address">Endereço</Label>
+                    <Input
+                      id="address"
+                      name="address"
+                      defaultValue={company.address || ""}
+                      placeholder="Endereço"
+                    />
                   </div>
-                  
-                  <Button variant="outline">
-                    Atualizar plano
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="city">Cidade</Label>
+                      <Input
+                        id="city"
+                        name="city"
+                        defaultValue={company.city || ""}
+                        placeholder="Cidade"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="state">Estado</Label>
+                      <Input
+                        id="state"
+                        name="state"
+                        defaultValue={company.state || ""}
+                        placeholder="Estado"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="zip_code">CEP</Label>
+                      <Input
+                        id="zip_code"
+                        name="zip_code"
+                        defaultValue={company.zip_code || ""}
+                        placeholder="CEP"
+                      />
+                    </div>
+                  </div>
+                  <Button type="submit" disabled={updateMutation.isPending}>
+                    {updateMutation.isPending ? "Atualizando..." : "Atualizar Empresa"}
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <div className="flex justify-end">
-              <Button 
-                type="submit" 
-                disabled={updateMutation.isPending}
-                className="w-full sm:w-auto"
-              >
-                {updateMutation.isPending && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                Salvar alterações
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </div>
+                </form>
+              ) : (
+                <p>Erro ao carregar informações da empresa.</p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="appearance" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Aparência</CardTitle>
+              <CardDescription>
+                Personalize a aparência do aplicativo de acordo com suas preferências.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AppearanceSettings />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="account" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Conta</CardTitle>
+              <CardDescription>
+                Gerencie as configurações da sua conta de usuário.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {/* Account settings content would go here */}
+              <p>Configurações de conta em breve.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

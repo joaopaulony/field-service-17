@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { PlanProvider } from "./contexts/PlanContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 // Layouts
@@ -42,39 +43,41 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <PlanProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              
-              {/* Admin Dashboard Routes */}
-              <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/dashboard/work-orders" element={<WorkOrders />} />
-                <Route path="/dashboard/work-orders/create" element={<CreateWorkOrder />} />
-                <Route path="/dashboard/work-orders/:id" element={<WorkOrderDetails />} />
-                <Route path="/dashboard/technicians" element={<Technicians />} />
-                <Route path="/dashboard/reports" element={<Reports />} />
-                <Route path="/dashboard/settings" element={<Settings />} />
-              </Route>
-              
-              {/* Technician Mobile Routes */}
-              <Route element={<ProtectedRoute><MobileLayout /></ProtectedRoute>}>
-                <Route path="/tech" element={<TechnicianDashboard />} />
-                <Route path="/tech/orders/:id" element={<WorkOrderView />} />
-                <Route path="/tech/settings" element={<TechnicianSettings />} />
-              </Route>
-              
-              {/* Catch-all route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+        <ThemeProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                
+                {/* Admin Dashboard Routes */}
+                <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/dashboard/work-orders" element={<WorkOrders />} />
+                  <Route path="/dashboard/work-orders/create" element={<CreateWorkOrder />} />
+                  <Route path="/dashboard/work-orders/:id" element={<WorkOrderDetails />} />
+                  <Route path="/dashboard/technicians" element={<Technicians />} />
+                  <Route path="/dashboard/reports" element={<Reports />} />
+                  <Route path="/dashboard/settings" element={<Settings />} />
+                </Route>
+                
+                {/* Technician Mobile Routes */}
+                <Route element={<ProtectedRoute><MobileLayout /></ProtectedRoute>}>
+                  <Route path="/tech" element={<TechnicianDashboard />} />
+                  <Route path="/tech/orders/:id" element={<WorkOrderView />} />
+                  <Route path="/tech/settings" element={<TechnicianSettings />} />
+                </Route>
+                
+                {/* Catch-all route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </ThemeProvider>
       </PlanProvider>
     </AuthProvider>
   </QueryClientProvider>

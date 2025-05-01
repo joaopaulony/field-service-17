@@ -45,7 +45,7 @@ const MobileLayout: React.FC = () => {
           <Link 
             to="/tech" 
             className={`flex flex-col items-center justify-center py-3 px-2 ${
-              isActive('/tech') ? 'text-primary' : 'text-muted-foreground'
+              isActive('/tech') ? 'text-primary' : 'text-foreground'
             }`}
           >
             <Home size={20} />
@@ -55,7 +55,7 @@ const MobileLayout: React.FC = () => {
           <Link 
             to="/tech/settings" 
             className={`flex flex-col items-center justify-center py-3 px-2 ${
-              isActive('/tech/settings') ? 'text-primary' : 'text-muted-foreground'
+              isActive('/tech/settings') ? 'text-primary' : 'text-foreground'
             }`}
           >
             <Settings size={20} />
@@ -64,7 +64,7 @@ const MobileLayout: React.FC = () => {
           
           <button 
             onClick={handleSignOut}
-            className="flex flex-col items-center justify-center py-3 px-2 text-muted-foreground w-full"
+            className="flex flex-col items-center justify-center py-3 px-2 text-foreground w-full"
           >
             <LogOut size={20} />
             <span className="text-xs mt-1">Sair</span>
