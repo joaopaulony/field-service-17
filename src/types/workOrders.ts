@@ -3,6 +3,49 @@ import { Database } from "@/integrations/supabase/types";
 
 export type WorkOrderStatus = Database["public"]["Enums"]["work_order_status"];
 
+export interface TechnicianSkill {
+  id: string;
+  name: string;
+  description: string | null;
+  company_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TechnicianSkillMapping {
+  id: string;
+  technician_id: string;
+  skill_id: string;
+  proficiency_level: number;
+  created_at: string;
+  updated_at: string;
+  skill?: TechnicianSkill;
+}
+
+export interface TechnicianAvailability {
+  id: string;
+  technician_id: string;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  is_available: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TechnicianPerformance {
+  id: string;
+  technician_id: string;
+  period_start: string;
+  period_end: string;
+  completed_work_orders: number;
+  average_completion_time_minutes: number;
+  customer_satisfaction_rating: number;
+  revenue_generated: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Technician {
   id: string;
   name: string;
@@ -12,6 +55,15 @@ export interface Technician {
   company_id: string;
   created_at: string;
   updated_at: string;
+  bio: string | null;
+  profile_image_url: string | null;
+  specialization: string | null;
+  hourly_rate: number | null;
+  years_experience: number | null;
+  max_daily_work_orders: number | null;
+  skills?: TechnicianSkillMapping[];
+  availability?: TechnicianAvailability[];
+  performance?: TechnicianPerformance[];
 }
 
 export interface WorkOrder {
@@ -75,4 +127,16 @@ export interface CreateTechnicianDTO {
   name: string;
   email: string;
   phone?: string;
+  bio?: string;
+  specialization?: string;
+  hourly_rate?: number;
+  years_experience?: number;
+  max_daily_work_orders?: number;
+}
+
+export interface TechnicianFilters {
+  searchTerm?: string;
+  specialty?: string;
+  availability?: string;
+  status?: 'active' | 'inactive' | 'all';
 }

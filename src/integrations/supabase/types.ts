@@ -342,36 +342,219 @@ export type Database = {
           },
         ]
       }
-      technicians: {
+      technician_availability: {
         Row: {
-          active: boolean
-          company_id: string
           created_at: string
-          email: string
+          day_of_week: number
+          end_time: string
           id: string
-          name: string
-          phone: string | null
+          is_available: boolean
+          start_time: string
+          technician_id: string
           updated_at: string
         }
         Insert: {
-          active?: boolean
-          company_id: string
           created_at?: string
-          email: string
+          day_of_week: number
+          end_time: string
           id?: string
-          name: string
-          phone?: string | null
+          is_available?: boolean
+          start_time: string
+          technician_id: string
           updated_at?: string
         }
         Update: {
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_available?: boolean
+          start_time?: string
+          technician_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "technician_availability_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      technician_performance: {
+        Row: {
+          average_completion_time_minutes: number
+          completed_work_orders: number
+          created_at: string
+          customer_satisfaction_rating: number
+          id: string
+          period_end: string
+          period_start: string
+          revenue_generated: number
+          technician_id: string
+          updated_at: string
+        }
+        Insert: {
+          average_completion_time_minutes?: number
+          completed_work_orders?: number
+          created_at?: string
+          customer_satisfaction_rating?: number
+          id?: string
+          period_end: string
+          period_start: string
+          revenue_generated?: number
+          technician_id: string
+          updated_at?: string
+        }
+        Update: {
+          average_completion_time_minutes?: number
+          completed_work_orders?: number
+          created_at?: string
+          customer_satisfaction_rating?: number
+          id?: string
+          period_end?: string
+          period_start?: string
+          revenue_generated?: number
+          technician_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "technician_performance_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      technician_skill_mappings: {
+        Row: {
+          created_at: string
+          id: string
+          proficiency_level: number
+          skill_id: string
+          technician_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          proficiency_level?: number
+          skill_id: string
+          technician_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          proficiency_level?: number
+          skill_id?: string
+          technician_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "technician_skill_mappings_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "technician_skills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "technician_skill_mappings_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      technician_skills: {
+        Row: {
+          company_id: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "technician_skills_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      technicians: {
+        Row: {
+          active: boolean
+          bio: string | null
+          company_id: string
+          created_at: string
+          email: string
+          hourly_rate: number | null
+          id: string
+          max_daily_work_orders: number | null
+          name: string
+          phone: string | null
+          profile_image_url: string | null
+          specialization: string | null
+          updated_at: string
+          years_experience: number | null
+        }
+        Insert: {
           active?: boolean
+          bio?: string | null
+          company_id: string
+          created_at?: string
+          email: string
+          hourly_rate?: number | null
+          id?: string
+          max_daily_work_orders?: number | null
+          name: string
+          phone?: string | null
+          profile_image_url?: string | null
+          specialization?: string | null
+          updated_at?: string
+          years_experience?: number | null
+        }
+        Update: {
+          active?: boolean
+          bio?: string | null
           company_id?: string
           created_at?: string
           email?: string
+          hourly_rate?: number | null
           id?: string
+          max_daily_work_orders?: number | null
           name?: string
           phone?: string | null
+          profile_image_url?: string | null
+          specialization?: string | null
           updated_at?: string
+          years_experience?: number | null
         }
         Relationships: [
           {
