@@ -10,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Loader2 } from 'lucide-react';
 
 interface DeleteTechnicianDialogProps {
   technician: Technician | null;
@@ -22,6 +23,13 @@ const DeleteTechnicianDialog: React.FC<DeleteTechnicianDialogProps> = ({
   isPending,
   onDelete
 }) => {
+  // Handler to prevent auto-close when confirming deletion
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onDelete();
+    // Dialog will be closed by the parent component after operation completes
+  };
+  
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
@@ -32,12 +40,18 @@ const DeleteTechnicianDialog: React.FC<DeleteTechnicianDialogProps> = ({
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+        <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
         <AlertDialogAction 
-          onClick={onDelete}
+          onClick={handleDelete}
           className="bg-red-600 hover:bg-red-700"
+          disabled={isPending}
         >
-          {isPending ? "Excluindo..." : "Excluir Técnico"}
+          {isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <span>Excluindo...</span>
+            </>
+          ) : "Excluir Técnico"}
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>
