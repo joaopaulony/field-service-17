@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -24,8 +23,8 @@ const AppearanceSettings = () => {
         <h3 className="text-lg font-medium">Aparência</h3>
       </div>
       
-      <RadioGroup value={theme} onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'tech')}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <RadioGroup value={theme} onValueChange={(value) => setTheme(value as 'light' | 'dark')}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <RadioGroupItem id="light" value="light" className="sr-only peer" />
             <Label 
@@ -55,22 +54,6 @@ const AppearanceSettings = () => {
                 <div className="h-8 w-8 rounded-full bg-blue-500 mx-auto" />
               </div>
               <span className="text-sm font-medium text-white">Escuro</span>
-            </Label>
-          </div>
-          
-          <div>
-            <RadioGroupItem id="tech" value="tech" className="sr-only peer" />
-            <Label 
-              htmlFor="tech" 
-              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-sky-50 p-4 hover:bg-sky-100 hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 [&:has([data-state=checked])]:border-primary transition-colors"
-            >
-              <div className="w-full mb-4">
-                <div className="rounded-md border border-cyan-200 bg-white p-2 mb-2">
-                  <div className="h-2 w-24 rounded-lg bg-cyan-300" />
-                </div>
-                <div className="h-8 w-8 rounded-full bg-cyan-500 mx-auto" />
-              </div>
-              <span className="text-sm font-medium">Técnico</span>
             </Label>
           </div>
         </div>

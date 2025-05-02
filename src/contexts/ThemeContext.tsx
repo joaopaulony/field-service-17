@@ -18,9 +18,9 @@ export const useTheme = () => useContext(ThemeContext);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<ThemeType>(() => {
     // Try to get theme from localStorage
-    const savedTheme = localStorage.getItem('theme') as ThemeType;
-    // If saved theme was 'tech', default to 'light'
-    return (savedTheme === 'tech' ? 'light' : savedTheme) || 'light';
+    const savedTheme = localStorage.getItem('theme');
+    // If saved theme exists and is valid, use it, otherwise default to 'light'
+    return (savedTheme === 'light' || savedTheme === 'dark') ? savedTheme as ThemeType : 'light';
   });
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     
     // Update document class for Tailwind theme
     const root = document.documentElement;
-    root.classList.remove('light-theme', 'dark-theme', 'tech-theme');
+    root.classList.remove('light-theme', 'dark-theme');
     root.classList.add(`${theme}-theme`);
     
     // Also add the data-theme attribute for shadcn components
