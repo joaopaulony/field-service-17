@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -164,7 +163,7 @@ const WorkOrders = () => {
           <p className="text-muted-foreground">Gerencie todas as ordens de serviço da sua empresa.</p>
         </div>
         <Button asChild>
-          <Link to="/dashboard/work-orders/create">
+          <Link to="/dashboard/work-orders/new">
             <Plus className="mr-2 h-4 w-4" />
             Nova OS
           </Link>
