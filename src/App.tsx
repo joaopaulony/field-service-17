@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
@@ -16,6 +17,7 @@ import Settings from './pages/dashboard/Settings';
 import Inventory from './pages/dashboard/Inventory';
 import InventoryForm from './pages/dashboard/InventoryForm';
 import Quotes from './pages/dashboard/Quotes';
+import QuoteForm from './pages/dashboard/QuoteForm';
 
 // Technician Pages
 import TechnicianDashboard from './pages/technician/TechnicianDashboard';
@@ -77,6 +79,8 @@ function App() {
                   
                   {/* Quotes routes */}
                   <Route path="quotes" element={<Quotes />} />
+                  <Route path="quotes/new" element={<QuoteForm />} />
+                  <Route path="quotes/:id" element={<QuoteForm />} />
                 </Route>
                 
                 {/* Technician routes */}
