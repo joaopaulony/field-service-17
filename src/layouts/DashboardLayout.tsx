@@ -102,14 +102,14 @@ const CompanyDisplay: React.FC = () => {
   }
 
   return (
-    <div className="flex items-center gap-2 p-2 px-3 rounded-lg profile-gradient">
-      <Avatar className="h-8 w-8 border-2 border-white/30">
+    <div className="flex items-center gap-2 px-3 py-1.5 border border-border/40 rounded-md bg-background hover:bg-muted/30 transition-colors">
+      <Avatar className="h-7 w-7 border border-border/30">
         <AvatarImage src={company?.logo_url || ""} />
-        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
+        <AvatarFallback className="bg-muted text-muted-foreground font-medium">
           {getInitials(company?.name || '?')}
         </AvatarFallback>
       </Avatar>
-      <span className="font-medium truncate max-w-[160px]">
+      <span className="font-medium truncate max-w-[160px] text-foreground">
         {company?.name || "Empresa"}
       </span>
     </div>
