@@ -40,7 +40,7 @@ const WorkOrders = () => {
     queryFn: fetchTechnicians
   });
   
-  // Delete work order mutation
+  // Delete work order mutation with proper error handling
   const deleteMutation = useMutation({
     mutationFn: deleteWorkOrder,
     onSuccess: () => {
@@ -49,7 +49,9 @@ const WorkOrders = () => {
         title: "Ordem de serviço excluída",
         description: "A ordem de serviço foi excluída com sucesso."
       });
+      // Only close the dialog after the operation completes successfully
       setIsDeleteOpen(false);
+      setSelectedWorkOrder(null);
     },
     onError: (error: any) => {
       toast({
@@ -57,6 +59,9 @@ const WorkOrders = () => {
         description: error.message,
         variant: "destructive"
       });
+      // Even on error, we should close the dialog and reset state
+      setIsDeleteOpen(false);
+      setSelectedWorkOrder(null);
     }
   });
   
@@ -71,10 +76,25 @@ const WorkOrders = () => {
     setIsDeleteOpen(true);
   };
   
-  // Handle delete work order confirmation
+  // Handle delete work order confirmation with proper validations
   const handleDeleteWorkOrder = () => {
     if (!selectedWorkOrder) return;
+    
+    // Validate if the work order can be deleted
+    if (selectedWorkOrder.status === 'in_progress') {
+      toast({
+        title: "Não é possível excluir",
+        description: "Não é possível excluir uma ordem de serviço em andamento.",
+        variant: "destructive"
+      });
+      setIsDeleteOpen(false);
+      return;
+    }
+    
+    // Proceed with deletion
     deleteMutation.mutate(selectedWorkOrder.id);
+    // Don't close the dialog until the operation completes
+    // It will be closed in the onSuccess or onError callbacks
   };
 
   // Reset all filters
@@ -245,6 +265,7 @@ const WorkOrders = () => {
           workOrders={filteredWorkOrders}
           isLoading={isLoadingWorkOrders}
           onDeleteWorkOrder={openDeleteDialog}
+          isDeletingAny={deleteMutation.isPending}
         />
       ) : (
         <WorkOrderMapView workOrders={filteredWorkOrders} />
@@ -255,7 +276,7 @@ const WorkOrders = () => {
         Exibindo {filteredWorkOrders.length} de {workOrders.length} ordens de serviço
       </div>
       
-      {/* Dialogs */}
+      {/* Dialogs - Updated delete dialog with proper pending state */}
       <DeleteWorkOrderDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}

@@ -10,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Loader2 } from 'lucide-react';
 
 interface DeleteWorkOrderDialogProps {
   open: boolean;
@@ -24,8 +25,15 @@ const DeleteWorkOrderDialog: React.FC<DeleteWorkOrderDialogProps> = ({
   onConfirm,
   isPending
 }) => {
+  // Handler to prevent auto-close when confirming deletion
+  const handleConfirm = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onConfirm();
+    // We don't close the dialog here - it will be closed by the parent component after operation completes
+  };
+  
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={open} onOpenChange={isPending ? undefined : onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Excluir Ordem de Serviço</AlertDialogTitle>
@@ -34,12 +42,20 @@ const DeleteWorkOrderDialog: React.FC<DeleteWorkOrderDialogProps> = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
           <AlertDialogAction 
-            onClick={onConfirm}
+            onClick={handleConfirm}
             className="bg-red-600 hover:bg-red-700"
+            disabled={isPending}
           >
-            {isPending ? "Excluindo..." : "Excluir"}
+            {isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <span>Excluindo...</span>
+              </>
+            ) : (
+              "Excluir"
+            )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

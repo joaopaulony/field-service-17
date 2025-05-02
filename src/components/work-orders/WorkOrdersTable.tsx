@@ -10,7 +10,8 @@ import {
   Trash2,
   Edit,
   Eye,
-  XCircle
+  XCircle,
+  Loader2
 } from 'lucide-react';
 import { 
   Table, 
@@ -29,17 +30,20 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { WorkOrder, WorkOrderStatus } from '@/types/workOrders';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface WorkOrdersTableProps {
   workOrders: WorkOrder[];
   isLoading: boolean;
   onDeleteWorkOrder: (workOrder: WorkOrder) => void;
+  isDeletingAny?: boolean;
 }
 
 const WorkOrdersTable: React.FC<WorkOrdersTableProps> = ({ 
   workOrders, 
   isLoading,
-  onDeleteWorkOrder
+  onDeleteWorkOrder,
+  isDeletingAny = false
 }) => {
   
   const getStatusBadge = (status: WorkOrderStatus) => {
@@ -86,6 +90,11 @@ const WorkOrdersTable: React.FC<WorkOrdersTableProps> = ({
     }).format(date);
   };
 
+  // Check if a work order can be deleted
+  const canDelete = (order: WorkOrder) => {
+    return order.status !== 'in_progress';
+  };
+
   return (
     <div className="border rounded-md overflow-hidden">
       <Table>
@@ -126,7 +135,7 @@ const WorkOrdersTable: React.FC<WorkOrdersTableProps> = ({
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
+                      <Button variant="ghost" size="icon" disabled={isDeletingAny}>
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -150,13 +159,39 @@ const WorkOrdersTable: React.FC<WorkOrdersTableProps> = ({
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem 
-                        className="text-red-600 cursor-pointer"
-                        onClick={() => onDeleteWorkOrder(order)}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        <span>Excluir</span>
-                      </DropdownMenuItem>
+                      {canDelete(order) ? (
+                        <DropdownMenuItem 
+                          className="text-red-600 cursor-pointer"
+                          onClick={() => onDeleteWorkOrder(order)}
+                          disabled={isDeletingAny}
+                        >
+                          {isDeletingAny ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              <span>Aguarde...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              <span>Excluir</span>
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                      ) : (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="px-2 py-1.5 text-muted-foreground flex items-center opacity-60">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>Excluir</span>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Não é possível excluir uma ordem em andamento</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
