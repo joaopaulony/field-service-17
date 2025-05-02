@@ -14,7 +14,16 @@ export interface BlogPost {
   author_id: string | null;
 }
 
-export type BlogPostFormData = Omit<BlogPost, 'id' | 'created_at' | 'updated_at' | 'data_publicacao'>;
+export type BlogPostFormData = {
+  titulo: string;
+  slug?: string;
+  descricao?: string;
+  conteudo_html?: string;
+  imagem_capa_url?: string;
+  tags?: string[];
+  publicado?: boolean;
+  author_id?: string;
+};
 
 export type BlogPostMinimal = Pick<BlogPost, 'id' | 'titulo' | 'slug' | 'descricao' | 'imagem_capa_url' | 'data_publicacao'>;
 
