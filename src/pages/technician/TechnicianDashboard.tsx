@@ -77,7 +77,7 @@ const TechnicianDashboard: React.FC = () => {
       {/* Header */}
       <TechnicianHeader technicianName={MOCK_TECHNICIAN_NAME} />
       
-      {/* Search */}
+      {/* Search - Campo único de busca */}
       <WorkOrderSearch 
         searchTerm={searchTerm} 
         onSearchChange={handleSearchChange} 
