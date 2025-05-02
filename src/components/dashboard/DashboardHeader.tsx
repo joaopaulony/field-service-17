@@ -1,25 +1,54 @@
 
 import React from 'react';
+import { LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CompanyDisplay } from './CompanyDisplay';
+import { MobileSidebar } from './MobileSidebar';
+import { useAuth } from '@/contexts/AuthContext';
 
-const DashboardHeader = () => {
+export const DashboardHeader: React.FC = () => {
+  const { signOut } = useAuth();
+
+  const handleLogout = () => {
+    signOut();
+  };
+
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">Bem-vindo de volta! Aqui está um resumo das suas atividades.</p>
+    <header className="h-14 flex items-center gap-4 border-b bg-background px-4 lg:px-6">
+      {/* Mobile menu */}
+      <MobileSidebar />
+      
+      {/* Desktop sidebar trigger */}
+      <SidebarTrigger className="hidden md:flex" />
+      
+      <div className="flex-1" />
+      <div className="flex items-center gap-2">
+        <ThemeSwitcher />
+        
+        <Popover>
+          <PopoverTrigger asChild>
+            <div className="cursor-pointer">
+              <CompanyDisplay />
+            </div>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-60 p-2">
+            <div className="flex justify-end">
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                onClick={handleLogout} 
+                className="flex items-center gap-1"
+              >
+                <LogOut size={16} />
+                <span>Sair</span>
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
-      <div className="flex flex-col sm:flex-row gap-2">
-        <Button variant="outline" asChild>
-          <Link to="/dashboard/work-orders">Ver Ordens de Serviço</Link>
-        </Button>
-        <Button asChild>
-          <Link to="/dashboard/work-orders/new">Nova Ordem de Serviço</Link>
-        </Button>
-      </div>
-    </div>
+    </header>
   );
 };
-
-export default DashboardHeader;
