@@ -14,6 +14,8 @@ export interface Quote {
   notes: string | null;
   created_at: string;
   updated_at: string;
+  email_sent?: boolean;
+  email_sent_at?: string | null;
 }
 
 export interface QuoteItem {
@@ -26,17 +28,17 @@ export interface QuoteItem {
   discount_percentage: number | null;
   created_at: string;
   updated_at: string;
-}
-
-export interface QuoteWithItems extends Quote {
-  items: QuoteItem[];
-}
-
-export interface QuoteItemWithDetails extends QuoteItem {
   inventory_item?: {
     name: string;
     sku: string | null;
   };
+}
+
+export interface QuoteWithItems extends Quote {
+  items: QuoteItemWithDetails[];
+}
+
+export interface QuoteItemWithDetails extends QuoteItem {
   total_price: number;
 }
 
