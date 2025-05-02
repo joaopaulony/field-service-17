@@ -10,7 +10,6 @@ import {
   FileText,
   LogOut,
   Menu,
-  ChevronDown
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -29,15 +28,12 @@ import {
   SheetContent,
   SheetTrigger
 } from '@/components/ui/sheet';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useQuery } from '@tanstack/react-query';
+import { getCompanyDetails } from '@/services/companyService';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 type NavItemProps = {
   to: string;
@@ -95,8 +91,33 @@ const getInitials = (name: string) => {
     .substring(0, 2);
 };
 
+const CompanyDisplay: React.FC = () => {
+  const { data: company, isLoading } = useQuery({
+    queryKey: ["company"],
+    queryFn: getCompanyDetails,
+  });
+
+  if (isLoading) {
+    return <Skeleton className="h-10 w-44" />;
+  }
+
+  return (
+    <div className="flex items-center gap-2 p-2 px-3 rounded-lg profile-gradient">
+      <Avatar className="h-8 w-8 border-2 border-white/30">
+        <AvatarImage src={company?.logo_url || ""} />
+        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
+          {getInitials(company?.name || '?')}
+        </AvatarFallback>
+      </Avatar>
+      <span className="font-medium truncate max-w-[160px]">
+        {company?.name || "Empresa"}
+      </span>
+    </div>
+  );
+};
+
 const DashboardLayout: React.FC = () => {
-  const { user, signOut } = useAuth();
+  const { signOut } = useAuth();
   const isMobile = useIsMobile();
 
   const handleLogout = () => {
@@ -176,35 +197,29 @@ const DashboardLayout: React.FC = () => {
             <SidebarTrigger className="hidden md:flex" />
             
             <div className="flex-1" />
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <ThemeSwitcher />
-              <DropdownMenu>
-                <DropdownMenuTrigger className="focus:outline-none group">
-                  <div className="flex items-center gap-2 p-1 px-2 rounded-full profile-gradient border border-blue-200/50 dark:border-blue-800/50 hover:shadow-md transition-all duration-200">
-                    <Avatar className="h-8 w-8 border-2 border-white/30">
-                      <AvatarImage src="https://github.com/shadcn.png" />
-                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
-                        {getInitials(user?.email || '')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm font-medium hidden md:block pr-1">
-                      {user?.email?.split('@')[0] || 'Usuário'}
-                    </span>
-                    <ChevronDown size={14} className="opacity-70 group-data-[state=open]:rotate-180 transition-transform" />
+              
+              <Popover>
+                <PopoverTrigger asChild>
+                  <div className="cursor-pointer">
+                    <CompanyDisplay />
                   </div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64 p-2">
-                  <div className="flex flex-col p-3 profile-gradient rounded-md mb-2">
-                    <span className="font-medium">{user?.email?.split('@')[0] || 'Usuário'}</span>
-                    <span className="text-xs text-muted-foreground">{user?.email}</span>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-60 p-2">
+                  <div className="flex justify-end">
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      onClick={handleLogout} 
+                      className="flex items-center gap-1"
+                    >
+                      <LogOut size={16} />
+                      <span>Sair</span>
+                    </Button>
                   </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive focus:text-destructive cursor-pointer" onClick={handleLogout}>
-                    <LogOut size={16} className="mr-2" />
-                    Sair
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                </PopoverContent>
+              </Popover>
             </div>
           </header>
 
