@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import {
@@ -10,6 +9,7 @@ import {
   FileText,
   LogOut,
   Menu,
+  Settings,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -130,7 +130,8 @@ const DashboardLayout: React.FC = () => {
     { to: "/dashboard/work-orders", icon: <Clipboard size={20} />, label: "Ordens de Serviço" },
     { to: "/dashboard/inventory", icon: <Package size={20} />, label: "Estoque" },
     { to: "/dashboard/quotes", icon: <FileText size={20} />, label: "Orçamentos" },
-    { to: "/dashboard/reports", icon: <BarChart3 size={20} />, label: "Relatórios" }
+    { to: "/dashboard/reports", icon: <BarChart3 size={20} />, label: "Relatórios" },
+    { to: "/dashboard/settings", icon: <Settings size={20} />, label: "Configurações" }
   ];
 
   return (
