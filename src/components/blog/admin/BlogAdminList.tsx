@@ -10,6 +10,7 @@ import { Loader2, Plus } from 'lucide-react';
 import BlogPostsTable from './BlogPostsTable';
 import EmptyPostsList from './EmptyPostsList';
 import DeletePostDialog from './DeletePostDialog';
+import { AlertDialog } from '@/components/ui/alert-dialog';
 
 const BlogAdminList: React.FC = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const BlogAdminList: React.FC = () => {
   const [postToDelete, setPostToDelete] = useState<BlogPost | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isTogglingPublish, setIsTogglingPublish] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['blogPosts'],
@@ -50,6 +52,11 @@ const BlogAdminList: React.FC = () => {
     }
   };
 
+  const handleSelectPostToDelete = (post: BlogPost) => {
+    setPostToDelete(post);
+    setIsDeleteDialogOpen(true);
+  };
+
   const handleDeleteConfirm = async () => {
     if (!postToDelete) return;
 
@@ -60,7 +67,6 @@ const BlogAdminList: React.FC = () => {
         description: 'Post excluído com sucesso.',
       });
       refetch();
-      setPostToDelete(null);
     } catch (error) {
       console.error('Erro ao excluir post:', error);
       toast({
@@ -70,7 +76,14 @@ const BlogAdminList: React.FC = () => {
       });
     } finally {
       setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
+      setPostToDelete(null);
     }
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setPostToDelete(null);
   };
 
   if (error) {
@@ -103,19 +116,21 @@ const BlogAdminList: React.FC = () => {
               posts={data?.posts || []}
               isTogglingPublish={isTogglingPublish}
               onPostTogglePublish={handlePublishToggle}
-              onSelectPostToDelete={setPostToDelete}
+              onSelectPostToDelete={handleSelectPostToDelete}
             />
           )}
         </>
       )}
 
-      <DeletePostDialog
-        post={postToDelete}
-        isOpen={!!postToDelete}
-        isDeleting={isDeleting}
-        onOpenChange={(open) => !open && setPostToDelete(null)}
-        onConfirm={handleDeleteConfirm}
-      />
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={handleCloseDeleteDialog}>
+        <DeletePostDialog
+          post={postToDelete}
+          isOpen={isDeleteDialogOpen}
+          isDeleting={isDeleting}
+          onOpenChange={handleCloseDeleteDialog}
+          onConfirm={handleDeleteConfirm}
+        />
+      </AlertDialog>
     </>
   );
 };
