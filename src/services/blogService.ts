@@ -1,0 +1,191 @@
+
+import { supabase } from '@/integrations/supabase/client';
+import { BlogPost, BlogPostFormData, BlogPostListingParams } from '@/types/blog';
+
+// Obter posts públicos (publicados)
+export const fetchPublishedPosts = async (params?: BlogPostListingParams) => {
+  const { page = 1, per_page = 10, tag } = params || {};
+  const start = (page - 1) * per_page;
+  const end = start + per_page - 1;
+
+  let query = supabase
+    .from('posts_blog')
+    .select('id, titulo, slug, descricao, imagem_capa_url, tags, data_publicacao')
+    .eq('publicado', true)
+    .order('data_publicacao', { ascending: false });
+
+  if (tag) {
+    query = query.contains('tags', [tag]);
+  }
+
+  const { data, error, count } = await query
+    .range(start, end)
+    .throwOnError();
+
+  if (error) {
+    throw error;
+  }
+
+  return { posts: data, count };
+};
+
+// Obter post público por slug
+export const fetchPostBySlug = async (slug: string): Promise<BlogPost | null> => {
+  const { data, error } = await supabase
+    .from('posts_blog')
+    .select('*')
+    .eq('slug', slug)
+    .eq('publicado', true)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+};
+
+// Obter todos os posts (para admin)
+export const fetchAllPosts = async (params?: BlogPostListingParams) => {
+  const { page = 1, per_page = 10 } = params || {};
+  const start = (page - 1) * per_page;
+  const end = start + per_page - 1;
+
+  const { data, error, count } = await supabase
+    .from('posts_blog')
+    .select('*', { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(start, end);
+
+  if (error) {
+    throw error;
+  }
+
+  return { posts: data, count };
+};
+
+// Obter post por id (para admin)
+export const fetchPostById = async (id: string): Promise<BlogPost | null> => {
+  const { data, error } = await supabase
+    .from('posts_blog')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+};
+
+// Criar novo post
+export const createPost = async (post: BlogPostFormData): Promise<BlogPost> => {
+  const { data, error } = await supabase
+    .from('posts_blog')
+    .insert([post])
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+};
+
+// Atualizar post existente
+export const updatePost = async (id: string, post: Partial<BlogPostFormData>): Promise<BlogPost> => {
+  const { data, error } = await supabase
+    .from('posts_blog')
+    .update(post)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+};
+
+// Excluir post
+export const deletePost = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('posts_blog')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    throw error;
+  }
+};
+
+// Publicar post
+export const publishPost = async (id: string): Promise<BlogPost> => {
+  const { data, error } = await supabase
+    .from('posts_blog')
+    .update({ publicado: true })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+};
+
+// Despublicar post
+export const unpublishPost = async (id: string): Promise<BlogPost> => {
+  const { data, error } = await supabase
+    .from('posts_blog')
+    .update({ publicado: false })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+};
+
+// Obter todas as tags únicas
+export const fetchAllTags = async (): Promise<string[]> => {
+  const { data, error } = await supabase
+    .from('posts_blog')
+    .select('tags')
+    .eq('publicado', true);
+
+  if (error) {
+    throw error;
+  }
+
+  // Extrair e deduplicate tags
+  const allTags = data
+    .flatMap(post => post.tags || [])
+    .filter(Boolean);
+
+  return [...new Set(allTags)];
+};
+
+// Verificar se o usuário é admin
+export const isUserAdmin = async (userId: string): Promise<boolean> => {
+  if (!userId) return false;
+  
+  const { data, error } = await supabase.rpc('has_role', {
+    _user_id: userId,
+    _role: 'admin'
+  });
+
+  if (error) {
+    console.error('Erro ao verificar função do usuário:', error);
+    return false;
+  }
+
+  return data || false;
+};

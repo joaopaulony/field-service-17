@@ -11,9 +11,12 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
-// Create storage bucket for company logos if it doesn't exist
+// Create storage buckets if they don't exist
 (async () => {
+  // Create logos bucket
   const { data: buckets } = await supabase.storage.listBuckets();
+  
+  // Create logos bucket if it doesn't exist
   if (!buckets?.find(bucket => bucket.name === 'logos')) {
     const { error } = await supabase.storage.createBucket('logos', {
       public: true,
@@ -21,9 +24,23 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
       allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
     });
     if (error) {
-      console.error('Error creating storage bucket:', error);
+      console.error('Error creating logos storage bucket:', error);
     } else {
       console.log('Created "logos" bucket for company logos');
+    }
+  }
+  
+  // Create blog-images bucket if it doesn't exist
+  if (!buckets?.find(bucket => bucket.name === 'blog-images')) {
+    const { error } = await supabase.storage.createBucket('blog-images', {
+      public: true,
+      fileSizeLimit: 10485760, // 10MB
+      allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml']
+    });
+    if (error) {
+      console.error('Error creating blog-images storage bucket:', error);
+    } else {
+      console.log('Created "blog-images" bucket for blog post images');
     }
   }
 })();
