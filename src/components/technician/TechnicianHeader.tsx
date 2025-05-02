@@ -1,10 +1,9 @@
 
 import React, { useState } from 'react';
-import { Bell, Package, FileText, Settings, User, LogOut, ChevronDown } from 'lucide-react';
+import { Bell, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import WorkOrderSearch from './WorkOrderSearch';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
-import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -13,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface TechnicianHeaderProps {
@@ -50,47 +50,34 @@ const TechnicianHeader: React.FC<TechnicianHeaderProps> = ({ technicianName }) =
         </div>
         
         <div className="flex items-center gap-2">
-          <Link to="/technician/inventory">
-            <Button variant="outline" size="icon" className="relative">
-              <Package className="h-5 w-5" />
-            </Button>
-          </Link>
-          <Link to="/technician/quotes">
-            <Button variant="outline" size="icon" className="relative">
-              <FileText className="h-5 w-5" />
-            </Button>
-          </Link>
           <ThemeSwitcher variant="ghost" />
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
           </Button>
           
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none group">
-              <div className="flex items-center gap-2 p-1 px-2 rounded-full bg-gradient-to-r from-cyan-100 to-blue-100 dark:from-cyan-900/40 dark:to-blue-900/40 border border-cyan-200/50 dark:border-cyan-800/50 hover:shadow-md transition-all duration-200">
+              <div className="flex items-center gap-2 p-1 px-2 rounded-full profile-gradient border border-blue-200/50 dark:border-blue-800/50 hover:shadow-md transition-all duration-200">
                 <Avatar className="h-8 w-8 border-2 border-white/30">
                   <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-blue-500 text-white">
+                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
                     {getInitials(technicianName || user?.email || '')}
                   </AvatarFallback>
                 </Avatar>
-                <ChevronDown size={14} className="opacity-70 group-data-[state=open]:rotate-180 transition-transform" />
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 p-2">
-              <div className="flex flex-col p-3 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/30 dark:to-blue-900/30 rounded-md mb-2">
+              <div className="flex flex-col p-3 profile-gradient rounded-md mb-2">
                 <span className="font-medium">{technicianName}</span>
                 <span className="text-xs text-muted-foreground">{user?.email}</span>
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link to="/technician/settings" className="flex items-center gap-2 py-2">
-                  <Settings size={16} />
                   Configurações
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="text-destructive focus:text-destructive cursor-pointer" onClick={handleLogout}>
-                <LogOut size={16} className="mr-2" />
                 Sair
               </DropdownMenuItem>
             </DropdownMenuContent>

@@ -1,12 +1,32 @@
+
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { Home, Package, FileText, User } from 'lucide-react';
+import { Home, Package, FileText, User, Menu } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import MobileMenu from '@/components/mobile/MobileMenu';
 
 const MobileLayout: React.FC = () => {
+  const { user } = useAuth();
+  const technicianName = user?.email?.split('@')[0] || '';
+
   return (
     <div className="flex flex-col h-screen bg-background">
-      <header className="border-b bg-background sticky top-0 z-10">
-        {/* You can add a header content here if needed */}
+      <header className="mobile-header flex items-center justify-between px-4 h-14">
+        <div className="flex items-center gap-2">
+          <MobileMenu 
+            triggerElement={
+              <Button variant="ghost" size="icon">
+                <Menu className="h-5 w-5" />
+              </Button>
+            } 
+            technicianName={technicianName}
+          />
+          <div className="font-semibold">OrderSys</div>
+        </div>
+        <div>
+          {/* Optional: Add any header elements here */}
+        </div>
       </header>
 
       <main className="flex-1 overflow-y-auto p-4">

@@ -9,8 +9,7 @@ import {
   Package,
   FileText,
   LogOut,
-  User,
-  Settings,
+  Menu,
   ChevronDown
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -23,12 +22,17 @@ import {
   SidebarHeader,
   SidebarProvider,
   useSidebar,
+  SidebarTrigger
 } from '@/components/ui/sidebar';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger
+} from '@/components/ui/sheet';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
@@ -52,13 +56,31 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label }) => {
       className={({ isActive }) =>
         `flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
           isActive
-            ? 'bg-muted text-primary'
+            ? 'bg-accent text-primary'
             : 'hover:bg-muted/80 text-muted-foreground'
         }`
       }
     >
       {icon}
       {(!isCollapsed || isMobile) && <span>{label}</span>}
+    </NavLink>
+  );
+};
+
+const MobileNavItem: React.FC<NavItemProps> = ({ to, icon, label }) => {
+  return (
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+          isActive
+            ? 'bg-accent text-primary'
+            : 'hover:bg-muted/80 text-muted-foreground'
+        }`
+      }
+    >
+      {icon}
+      <span>{label}</span>
     </NavLink>
   );
 };
@@ -81,10 +103,20 @@ const DashboardLayout: React.FC = () => {
     signOut();
   };
 
+  const navItems = [
+    { to: "/dashboard", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
+    { to: "/dashboard/technicians", icon: <Users size={20} />, label: "Técnicos" },
+    { to: "/dashboard/work-orders", icon: <Clipboard size={20} />, label: "Ordens de Serviço" },
+    { to: "/dashboard/inventory", icon: <Package size={20} />, label: "Estoque" },
+    { to: "/dashboard/quotes", icon: <FileText size={20} />, label: "Orçamentos" },
+    { to: "/dashboard/reports", icon: <BarChart3 size={20} />, label: "Relatórios" }
+  ];
+
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex">
-        <Sidebar className="h-screen">
+      <div className="min-h-screen flex w-full">
+        {/* Desktop Sidebar */}
+        <Sidebar className="h-screen hidden md:flex">
           <SidebarHeader>
             <div className="flex items-center gap-2 p-2">
               <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-bold">
@@ -96,64 +128,62 @@ const DashboardLayout: React.FC = () => {
           
           <SidebarContent>
             <div className="space-y-1">
-              <NavItem
-                to="/dashboard"
-                icon={<LayoutDashboard size={20} />}
-                label="Dashboard"
-              />
-              <NavItem
-                to="/dashboard/technicians"
-                icon={<Users size={20} />}
-                label="Técnicos"
-              />
-              <NavItem
-                to="/dashboard/work-orders"
-                icon={<Clipboard size={20} />}
-                label="Ordens de Serviço"
-              />
-              <NavItem
-                to="/dashboard/inventory"
-                icon={<Package size={20} />}
-                label="Estoque"
-              />
-              <NavItem
-                to="/dashboard/quotes"
-                icon={<FileText size={20} />}
-                label="Orçamentos"
-              />
-              <NavItem
-                to="/dashboard/reports"
-                icon={<BarChart3 size={20} />}
-                label="Relatórios"
-              />
+              {navItems.map((item) => (
+                <NavItem
+                  key={item.to}
+                  to={item.to}
+                  icon={item.icon}
+                  label={item.label}
+                />
+              ))}
             </div>
           </SidebarContent>
           
-          <SidebarFooter>
-            {isMobile && (
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={handleLogout}
-              >
-                <LogOut size={16} className="mr-2" />
-                Sair
-              </Button>
-            )}
-          </SidebarFooter>
+          <SidebarFooter></SidebarFooter>
         </Sidebar>
 
         <div className="flex-1 flex flex-col overflow-hidden">
           <header className="h-14 flex items-center gap-4 border-b bg-background px-4 lg:px-6">
+            {/* Mobile menu */}
+            <Sheet>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px]">
+                <div className="flex items-center gap-2 p-2 mb-6">
+                  <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-bold">
+                    OS
+                  </div>
+                  <span className="font-semibold">OrderSys</span>
+                </div>
+                
+                <div className="space-y-1">
+                  {navItems.map((item) => (
+                    <MobileNavItem
+                      key={item.to}
+                      to={item.to}
+                      icon={item.icon}
+                      label={item.label}
+                    />
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
+            
+            {/* Desktop sidebar trigger */}
+            <SidebarTrigger className="hidden md:flex" />
+            
             <div className="flex-1" />
             <div className="flex items-center gap-4">
               <ThemeSwitcher />
               <DropdownMenu>
                 <DropdownMenuTrigger className="focus:outline-none group">
-                  <div className="flex items-center gap-2 p-1 px-2 rounded-full bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/40 dark:to-blue-900/40 border border-purple-200/50 dark:border-purple-800/50 hover:shadow-md transition-all duration-200">
+                  <div className="flex items-center gap-2 p-1 px-2 rounded-full profile-gradient border border-blue-200/50 dark:border-blue-800/50 hover:shadow-md transition-all duration-200">
                     <Avatar className="h-8 w-8 border-2 border-white/30">
                       <AvatarImage src="https://github.com/shadcn.png" />
-                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
                         {getInitials(user?.email || '')}
                       </AvatarFallback>
                     </Avatar>
@@ -164,17 +194,11 @@ const DashboardLayout: React.FC = () => {
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-64 p-2">
-                  <div className="flex flex-col p-3 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 rounded-md mb-2">
+                  <div className="flex flex-col p-3 profile-gradient rounded-md mb-2">
                     <span className="font-medium">{user?.email?.split('@')[0] || 'Usuário'}</span>
                     <span className="text-xs text-muted-foreground">{user?.email}</span>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild className="cursor-pointer">
-                    <NavLink to="/dashboard/settings" className="flex items-center gap-2 py-2">
-                      <Settings size={16} />
-                      Configurações
-                    </NavLink>
-                  </DropdownMenuItem>
                   <DropdownMenuItem className="text-destructive focus:text-destructive cursor-pointer" onClick={handleLogout}>
                     <LogOut size={16} className="mr-2" />
                     Sair

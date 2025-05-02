@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type ThemeType = 'light' | 'dark' | 'tech';
+type ThemeType = 'light' | 'dark';
 
 interface ThemeContextType {
   theme: ThemeType;
@@ -19,7 +19,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [theme, setTheme] = useState<ThemeType>(() => {
     // Try to get theme from localStorage
     const savedTheme = localStorage.getItem('theme') as ThemeType;
-    return savedTheme || 'light';
+    // If saved theme was 'tech', default to 'light'
+    return (savedTheme === 'tech' ? 'light' : savedTheme) || 'light';
   });
 
   useEffect(() => {
