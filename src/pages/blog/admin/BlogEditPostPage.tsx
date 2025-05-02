@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
-import { isUserAdmin, fetchPostById, updatePost } from '@/services/blogService';
+import { fetchPostById, updatePost } from '@/services/blogService';
+import { hasUserRole } from '@/services/userRolesService';
 import { BlogPostFormData } from '@/types/blog';
 import BlogPostForm from '@/components/blog/admin/BlogPostForm';
 import { Loader2 } from 'lucide-react';
@@ -20,7 +21,7 @@ const BlogEditPostPage: React.FC = () => {
   
   const { data: isAdmin, isLoading: isCheckingAdmin } = useQuery({
     queryKey: ['isAdmin', user?.id],
-    queryFn: () => user ? isUserAdmin(user.id) : Promise.resolve(false),
+    queryFn: () => user ? hasUserRole(user.id, 'admin') : Promise.resolve(false),
     enabled: !!user,
   });
 

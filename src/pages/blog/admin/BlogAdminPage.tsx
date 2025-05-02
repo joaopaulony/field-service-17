@@ -2,16 +2,16 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
-import { isUserAdmin } from '@/services/blogService';
 import { Loader2 } from 'lucide-react';
 import BlogAdminList from '@/components/blog/admin/BlogAdminList';
+import { hasUserRole } from '@/services/userRolesService';
 
 const BlogAdminPage: React.FC = () => {
   const { user } = useAuth();
   
   const { data: isAdmin, isLoading } = useQuery({
     queryKey: ['isAdmin', user?.id],
-    queryFn: () => user ? isUserAdmin(user.id) : Promise.resolve(false),
+    queryFn: () => user ? hasUserRole(user.id, 'admin') : Promise.resolve(false),
     enabled: !!user,
   });
 
