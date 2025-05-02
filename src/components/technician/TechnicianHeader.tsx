@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Bell, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import WorkOrderSearch from './WorkOrderSearch';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -20,7 +19,6 @@ interface TechnicianHeaderProps {
 }
 
 const TechnicianHeader: React.FC<TechnicianHeaderProps> = ({ technicianName }) => {
-  const [searchTerm, setSearchTerm] = useState('');
   const { signOut, user } = useAuth();
   
   const handleLogout = () => {
@@ -35,10 +33,6 @@ const TechnicianHeader: React.FC<TechnicianHeaderProps> = ({ technicianName }) =
       .join('')
       .toUpperCase()
       .substring(0, 2);
-  };
-  
-  const handleSearchChange = (term: string) => {
-    setSearchTerm(term);
   };
   
   return (
@@ -84,11 +78,6 @@ const TechnicianHeader: React.FC<TechnicianHeaderProps> = ({ technicianName }) =
           </DropdownMenu>
         </div>
       </div>
-      
-      <WorkOrderSearch 
-        searchTerm={searchTerm} 
-        onSearchChange={handleSearchChange} 
-      />
     </div>
   );
 };

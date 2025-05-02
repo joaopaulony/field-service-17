@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Camera, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Camera, CheckCircle2, AlertCircle, Clipboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getCompanyPlan, PLAN_LIMITS } from '@/services/planService';
 import { PlanType } from '@/services/planService';
@@ -51,13 +51,19 @@ const QuickActions: React.FC = () => {
       {renderPlanBadge()}
       <div className="grid grid-cols-2 gap-3">
         <Button variant="outline" className="h-20 flex-col" asChild>
-          <Link to="/tech/scan">
+          <Link to="/technician/work-orders">
+            <Clipboard className="h-6 w-6 mb-1" />
+            <span>Ordens de Serviço</span>
+          </Link>
+        </Button>
+        <Button variant="outline" className="h-20 flex-col" asChild>
+          <Link to="/technician/scan">
             <Camera className="h-6 w-6 mb-1" />
             <span>Escanear QR</span>
           </Link>
         </Button>
         <Button variant="outline" className="h-20 flex-col" asChild>
-          <Link to="/tech/history">
+          <Link to="/technician/history">
             <CheckCircle2 className="h-6 w-6 mb-1" />
             <span>Histórico</span>
           </Link>

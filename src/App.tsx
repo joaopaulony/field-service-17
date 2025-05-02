@@ -25,6 +25,7 @@ import WorkOrderView from './pages/technician/WorkOrderView';
 import TechnicianSettings from './pages/technician/TechnicianSettings';
 import TechnicianInventory from './pages/technician/TechnicianInventory';
 import TechnicianQuotes from './pages/technician/TechnicianQuotes';
+import TechnicianWorkOrders from './pages/technician/TechnicianWorkOrders';
 
 // Auth Pages
 import Login from './pages/auth/Login';
@@ -90,6 +91,7 @@ function App() {
                   </ProtectedRoute>
                 }>
                   <Route index element={<TechnicianDashboard />} />
+                  <Route path="work-orders" element={<TechnicianWorkOrders />} />
                   <Route path="work-order/:id" element={<WorkOrderView />} />
                   <Route path="settings" element={<TechnicianSettings />} />
                   <Route path="inventory" element={<TechnicianInventory />} />
