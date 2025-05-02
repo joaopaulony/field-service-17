@@ -160,7 +160,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, onSubmit, is
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="">Sem categoria</SelectItem>
+                    <SelectItem value="none">Sem categoria</SelectItem>
                     {isLoadingCategories ? (
                       <div className="flex items-center justify-center p-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
