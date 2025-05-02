@@ -58,9 +58,9 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 
-                {/* Dashboard routes */}
+                {/* Dashboard routes - Company users */}
                 <Route path="/dashboard" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute routeType="company">
                     <DashboardLayout />
                   </ProtectedRoute>
                 }>
@@ -85,7 +85,7 @@ function App() {
                 
                 {/* Technician routes */}
                 <Route path="/technician" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute routeType="technician">
                     <MobileLayout />
                   </ProtectedRoute>
                 }>

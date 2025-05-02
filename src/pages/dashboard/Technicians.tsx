@@ -26,7 +26,8 @@ import {
   createTechnician, 
   updateTechnician, 
   deleteTechnician 
-} from '@/services/technicianService';
+} from '@/services/technician';
+import { createTechnicianAuthAccount } from '@/services/technician/technicianAuth';
 import { Technician, CreateTechnicianDTO } from '@/types/workOrders';
 
 // Import custom components
@@ -43,10 +44,11 @@ const Technicians = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedTechnician, setSelectedTechnician] = useState<Technician | null>(null);
-  const [formData, setFormData] = useState<CreateTechnicianDTO>({
+  const [formData, setFormData] = useState<CreateTechnicianDTO & { password?: string }>({
     name: '',
     email: '',
-    phone: ''
+    phone: '',
+    password: ''
   });
   
   // Query to fetch technicians
@@ -57,12 +59,35 @@ const Technicians = () => {
   
   // Mutation to create technician
   const createMutation = useMutation({
-    mutationFn: createTechnician,
+    mutationFn: async (data: CreateTechnicianDTO & { password?: string }) => {
+      const { password, ...technicianData } = data;
+      
+      // First create auth account if password is provided
+      if (password) {
+        try {
+          await createTechnicianAuthAccount(data.email, password);
+        } catch (error: any) {
+          // If the account already exists, we can continue but show a warning
+          if (error.message?.includes('already registered')) {
+            toast({
+              title: "Aviso",
+              description: "Já existe uma conta com este e-mail. O técnico será vinculado a esta conta existente.",
+              variant: "warning"
+            });
+          } else {
+            throw error;
+          }
+        }
+      }
+      
+      // Then create the technician record
+      return createTechnician(technicianData);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['technicians'] });
       toast({
         title: "Técnico adicionado",
-        description: "O técnico foi adicionado com sucesso."
+        description: "O técnico foi adicionado com sucesso e poderá acessar o sistema."
       });
       resetForm();
       setIsAddOpen(false);
@@ -135,12 +160,13 @@ const Technicians = () => {
     setFormData({
       name: '',
       email: '',
-      phone: ''
+      phone: '',
+      password: ''
     });
     setSelectedTechnician(null);
   };
   
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -168,7 +194,9 @@ const Technicians = () => {
     setFormData({
       name: technician.name,
       email: technician.email,
-      phone: technician.phone || ''
+      phone: technician.phone || '',
+      bio: technician.bio || '',
+      specialization: technician.specialization || ''
     });
     setIsEditOpen(true);
   };
@@ -235,6 +263,7 @@ const Technicians = () => {
             <DialogTitle>Adicionar Técnico</DialogTitle>
             <DialogDescription>
               Preencha as informações para adicionar um novo técnico à sua equipe.
+              Uma conta será criada para que o técnico acesse o sistema.
             </DialogDescription>
           </DialogHeader>
           <TechnicianForm
@@ -247,6 +276,7 @@ const Technicians = () => {
             onSubmit={handleAddTechnician}
             isPending={createMutation.isPending}
             submitLabel="Adicionar Técnico"
+            isCreating={true}
           />
         </DialogContent>
       </Dialog>
@@ -270,6 +300,7 @@ const Technicians = () => {
             onSubmit={handleUpdateTechnician}
             isPending={updateMutation.isPending}
             submitLabel="Salvar Alterações"
+            isCreating={false}
           />
         </DialogContent>
       </Dialog>

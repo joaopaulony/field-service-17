@@ -36,3 +36,24 @@ export const getCurrentTechnician = async (): Promise<Technician | null> => {
     return null;
   }
 };
+
+// Create a new Supabase auth account for the technician
+export const createTechnicianAuthAccount = async (email: string, password: string): Promise<string | null> => {
+  // Create a new user account
+  const { data: authData, error: authError } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        user_type: 'technician',
+      }
+    }
+  });
+  
+  if (authError) {
+    console.error('Error creating technician auth account:', authError);
+    throw authError;
+  }
+  
+  return authData?.user?.id || null;
+};

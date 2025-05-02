@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Clipboard, Mail, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,31 +16,65 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { useEffect } from 'react';
+import { getCurrentTechnician } from '@/services/technician/technicianAuth';
 
 const Login = () => {
   const { toast } = useToast();
   const { signIn, user, loading } = useAuth();
-  const [isCompany, setIsCompany] = React.useState(true);
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [isCompany, setIsCompany] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
   const navigate = useNavigate();
   
   useEffect(() => {
-    if (user) {
-      // Redirect based on user type (this is just a placeholder logic)
-      if (isCompany) {
-        navigate('/dashboard');
-      } else {
-        navigate('/tech');
+    const checkUserType = async () => {
+      if (user) {
+        setLoginLoading(true);
+        try {
+          // Check if the user is a technician
+          const technician = await getCurrentTechnician();
+          
+          if (technician) {
+            // Redirect to technician dashboard
+            navigate('/technician');
+          } else {
+            // Redirect to company dashboard
+            navigate('/dashboard');
+          }
+        } catch (error) {
+          console.error("Error determining user type:", error);
+          navigate('/dashboard'); // Default to company dashboard on error
+        } finally {
+          setLoginLoading(false);
+        }
       }
-    }
-  }, [user, navigate, isCompany]);
+    };
+    
+    checkUserType();
+  }, [user, navigate]);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await signIn(email, password);
+    setLoginLoading(true);
+    
+    try {
+      await signIn(email, password);
+    } catch (error) {
+      console.error("Login error:", error);
+    } finally {
+      setLoginLoading(false);
+    }
   };
+  
+  if (loading || loginLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+        <p className="text-muted-foreground">Carregando...</p>
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-muted p-4">
@@ -115,8 +149,8 @@ const Login = () => {
               </div>
             </div>
             
-            <Button className="w-full" type="submit" disabled={loading}>
-              {loading ? "Entrando..." : "Entrar"}
+            <Button className="w-full" type="submit" disabled={loading || loginLoading}>
+              {loading || loginLoading ? "Entrando..." : "Entrar"}
             </Button>
           </form>
         </CardContent>
