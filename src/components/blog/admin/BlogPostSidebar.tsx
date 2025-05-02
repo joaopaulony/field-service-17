@@ -3,7 +3,7 @@ import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Loader2 } from 'lucide-react';
@@ -102,26 +102,6 @@ const BlogPostSidebar: React.FC<BlogPostSidebarProps> = ({
         </Button>
       </div>
     </div>
-  );
-};
-
-// Adding FormMessage component since it's used above but not directly imported
-const FormMessage = ({ children }: { children?: React.ReactNode }) => {
-  const { useFormField } = require('@/components/ui/form');
-  const { error, formMessageId } = useFormField();
-  const body = error ? String(error?.message) : children;
-
-  if (!body) {
-    return null;
-  }
-
-  return (
-    <p
-      id={formMessageId}
-      className="text-sm font-medium text-destructive"
-    >
-      {body}
-    </p>
   );
 };
 
