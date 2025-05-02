@@ -106,8 +106,13 @@ const BlogPostForm: React.FC<BlogPostFormProps> = ({
 
       // Incluir a lista de tags no objeto de dados
       const formData: BlogPostFormData = {
-        ...values,
-        tags,
+        titulo: values.titulo,
+        slug: values.slug,
+        descricao: values.descricao,
+        conteudo_html: values.conteudo_html,
+        imagem_capa_url: values.imagem_capa_url,
+        publicado: values.publicado,
+        tags: tags,
       };
 
       await onSave(formData);
