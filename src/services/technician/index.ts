@@ -7,7 +7,8 @@ import {
   updateTechnician, 
   deleteTechnician,
   countActiveTechnicians,
-  fetchActiveTechnicians
+  fetchActiveTechnicians,
+  fetchTechniciansWithFilters
 } from './technicianCore';
 
 import {
@@ -36,6 +37,11 @@ import {
   calculateTechnicianPerformance
 } from './technicianPerformance';
 
+import {
+  fetchTechnicianByEmail,
+  getCurrentTechnician
+} from './technicianAuth';
+
 export {
   // Core technician operations
   fetchTechnicians,
@@ -45,6 +51,7 @@ export {
   deleteTechnician,
   countActiveTechnicians,
   fetchActiveTechnicians,
+  fetchTechniciansWithFilters,
   
   // Skills management
   fetchTechnicianSkills,
@@ -66,5 +73,9 @@ export {
   
   // Performance metrics
   fetchTechnicianPerformance,
-  calculateTechnicianPerformance
+  calculateTechnicianPerformance,
+  
+  // Auth related
+  fetchTechnicianByEmail,
+  getCurrentTechnician
 };
