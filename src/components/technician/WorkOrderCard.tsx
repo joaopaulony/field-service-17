@@ -141,7 +141,7 @@ const WorkOrderCard: React.FC<WorkOrderCardProps> = ({
       </CardContent>
       <CardFooter className="px-4 py-3 bg-muted/30">
         <Button variant="default" size="sm" className="ml-auto" asChild>
-          <Link to={`/tech/orders/${workOrder.id}`}>
+          <Link to={`/technician/work-order/${workOrder.id}`}>
             <span className="mr-1">Ver Detalhes</span>
             <ArrowRight className="h-4 w-4" />
           </Link>

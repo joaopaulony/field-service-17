@@ -1,26 +1,56 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchTechnicianWorkOrders } from '@/services/workOrderService';
-import { WorkOrder, WorkOrderStatus } from '@/types/workOrders';
+import { getCurrentTechnician } from '@/services/technician/technicianAuth';
+import { WorkOrder } from '@/types/workOrders';
 
 // Import refactored components
 import TechnicianHeader from '@/components/technician/TechnicianHeader';
 import WorkOrderSearch from '@/components/technician/WorkOrderSearch';
 import WorkOrderTabs from '@/components/technician/WorkOrderTabs';
 import QuickActions from '@/components/technician/QuickActions';
-
-// Técnico mockado para teste (em produção, viria da autenticação)
-const MOCK_TECHNICIAN_ID = "3fa85f64-5717-4562-b3fc-2c963f66afa6"; // Substitua por um ID real de um técnico
-const MOCK_TECHNICIAN_NAME = "João Técnico"; // Nome mockado do técnico
+import { useToast } from '@/hooks/use-toast';
 
 const TechnicianDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [technicianId, setTechnicianId] = useState<string | null>(null);
+  const [technicianName, setTechnicianName] = useState('Técnico');
+  const { toast } = useToast();
+  
+  // Load the current technician information
+  useEffect(() => {
+    const loadTechnician = async () => {
+      try {
+        const technician = await getCurrentTechnician();
+        if (technician) {
+          setTechnicianId(technician.id);
+          setTechnicianName(technician.name);
+        } else {
+          toast({
+            title: "Perfil não encontrado",
+            description: "Não foi possível encontrar seu perfil de técnico.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching technician data:", error);
+        toast({
+          title: "Erro ao carregar perfil",
+          description: "Ocorreu um erro ao carregar seu perfil de técnico.",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    loadTechnician();
+  }, [toast]);
   
   // Consulta para buscar ordens de serviço do técnico
   const { data: workOrders = [], isLoading } = useQuery({
-    queryKey: ['technicianWorkOrders', MOCK_TECHNICIAN_ID],
-    queryFn: () => fetchTechnicianWorkOrders(MOCK_TECHNICIAN_ID)
+    queryKey: ['technicianWorkOrders', technicianId],
+    queryFn: () => technicianId ? fetchTechnicianWorkOrders(technicianId) : Promise.resolve([]),
+    enabled: !!technicianId // Only run query when technician ID is available
   });
   
   // Filtrar ordens de serviço ativas e concluídas
@@ -75,7 +105,7 @@ const TechnicianDashboard: React.FC = () => {
   return (
     <div className="mobile-container">
       {/* Header */}
-      <TechnicianHeader technicianName={MOCK_TECHNICIAN_NAME} />
+      <TechnicianHeader technicianName={technicianName} />
       
       {/* Search - Campo único de busca */}
       <WorkOrderSearch 
