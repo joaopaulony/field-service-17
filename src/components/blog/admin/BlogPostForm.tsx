@@ -26,6 +26,8 @@ const blogPostSchema = z.object({
   publicado: z.boolean().optional(),
 });
 
+type FormValues = z.infer<typeof blogPostSchema>;
+
 interface BlogPostFormProps {
   post?: BlogPost;
   onSave: (data: BlogPostFormData) => Promise<void>;
@@ -45,7 +47,7 @@ const BlogPostForm: React.FC<BlogPostFormProps> = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const form = useForm<z.infer<typeof blogPostSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(blogPostSchema),
     defaultValues: {
       titulo: post?.titulo || '',
@@ -91,10 +93,19 @@ const BlogPostForm: React.FC<BlogPostFormProps> = ({
     }
   };
 
-  const onSubmit = async (values: z.infer<typeof blogPostSchema>) => {
+  const onSubmit = async (values: FormValues) => {
     try {
+      // Ensure titulo is provided as required by BlogPostFormData
+      if (!values.titulo) {
+        form.setError('titulo', {
+          type: 'manual',
+          message: 'O título é obrigatório',
+        });
+        return;
+      }
+
       // Incluir a lista de tags no objeto de dados
-      const formData = {
+      const formData: BlogPostFormData = {
         ...values,
         tags,
       };
