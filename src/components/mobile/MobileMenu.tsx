@@ -7,7 +7,8 @@ import {
   FileText, 
   User, 
   Settings,
-  LogOut
+  LogOut,
+  BookOpen
 } from 'lucide-react';
 import { 
   Sheet, 
@@ -88,6 +89,18 @@ const MobileMenu = ({ triggerElement, technicianName = '' }: MobileMenuProps) =>
           >
             <Home className="h-5 w-5" />
             <span>Início</span>
+          </NavLink>
+          
+          <NavLink
+            to="/blog"
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-lg px-3 py-2 ${
+                isActive ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+              }`
+            }
+          >
+            <BookOpen className="h-5 w-5" />
+            <span>Blog</span>
           </NavLink>
           
           <NavLink

@@ -8,7 +8,8 @@ import {
   LineChart, 
   Camera,
   MapPin,
-  FileText
+  FileText,
+  BookOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -26,6 +27,9 @@ const Index = () => {
           </Link>
           
           <div className="flex items-center gap-4">
+            <Link to="/blog" className="text-sm font-medium hover:text-primary">
+              Blog
+            </Link>
             <Link to="/login" className="text-sm font-medium hover:text-primary">
               Entrar
             </Link>
@@ -328,7 +332,7 @@ const Index = () => {
               <h4 className="font-medium mb-4">Empresa</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link to="/" className="hover:text-primary">Sobre Nós</Link></li>
-                <li><Link to="/" className="hover:text-primary">Blog</Link></li>
+                <li><Link to="/blog" className="hover:text-primary">Blog</Link></li>
                 <li><Link to="/" className="hover:text-primary">Contato</Link></li>
               </ul>
             </div>
