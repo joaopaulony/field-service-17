@@ -6,11 +6,12 @@ import {
   Users,
   Clipboard,
   BarChart3,
-  Settings,
   Package,
   FileText,
   LogOut,
-  User
+  User,
+  Settings,
+  ChevronDown
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -125,11 +126,6 @@ const DashboardLayout: React.FC = () => {
                 icon={<BarChart3 size={20} />}
                 label="Relatórios"
               />
-              <NavItem
-                to="/dashboard/settings"
-                icon={<Settings size={20} />}
-                label="Configurações"
-              />
             </div>
           </SidebarContent>
           
@@ -153,22 +149,33 @@ const DashboardLayout: React.FC = () => {
             <div className="flex items-center gap-4">
               <ThemeSwitcher />
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Avatar className="cursor-pointer">
-                    <AvatarImage src="https://github.com/shadcn.png" />
-                    <AvatarFallback>{getInitials(user?.email || '')}</AvatarFallback>
-                  </Avatar>
+                <DropdownMenuTrigger className="focus:outline-none group">
+                  <div className="flex items-center gap-2 p-1 px-2 rounded-full bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/40 dark:to-blue-900/40 border border-purple-200/50 dark:border-purple-800/50 hover:shadow-md transition-all duration-200">
+                    <Avatar className="h-8 w-8 border-2 border-white/30">
+                      <AvatarImage src="https://github.com/shadcn.png" />
+                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+                        {getInitials(user?.email || '')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm font-medium hidden md:block pr-1">
+                      {user?.email?.split('@')[0] || 'Usuário'}
+                    </span>
+                    <ChevronDown size={14} className="opacity-70 group-data-[state=open]:rotate-180 transition-transform" />
+                  </div>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+                <DropdownMenuContent align="end" className="w-64 p-2">
+                  <div className="flex flex-col p-3 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 rounded-md mb-2">
+                    <span className="font-medium">{user?.email?.split('@')[0] || 'Usuário'}</span>
+                    <span className="text-xs text-muted-foreground">{user?.email}</span>
+                  </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <NavLink to="/dashboard/settings" className="flex items-center">
-                      <User size={16} className="mr-2" />
-                      Perfil
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <NavLink to="/dashboard/settings" className="flex items-center gap-2 py-2">
+                      <Settings size={16} />
+                      Configurações
                     </NavLink>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive cursor-pointer">
+                  <DropdownMenuItem className="text-destructive focus:text-destructive cursor-pointer" onClick={handleLogout}>
                     <LogOut size={16} className="mr-2" />
                     Sair
                   </DropdownMenuItem>
