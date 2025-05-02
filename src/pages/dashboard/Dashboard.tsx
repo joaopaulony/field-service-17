@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -7,7 +6,7 @@ import { fetchTechnicians } from '@/services/technicianService';
 import { WorkOrder } from '@/types/workOrders';
 
 // Component imports
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import StatusCardList from '@/components/dashboard/StatusCardList';
 import WeeklyActivityChart, { processWeeklyData } from '@/components/dashboard/WeeklyActivityChart';
 import TechnicianPerformanceChart, { processTechnicianPerformance } from '@/components/dashboard/TechnicianPerformanceChart';
