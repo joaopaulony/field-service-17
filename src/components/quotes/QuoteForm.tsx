@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 import { getInventoryItems } from '@/services/inventoryService';
 import { InventoryItemWithCategory } from '@/types/inventory';
 import { QuoteItemWithDetails, Quote } from '@/types/quotes';
+import { Switch } from "@/components/ui/switch";
 
 // Define form schema
 const formSchema = z.object({
@@ -80,6 +81,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ initialData, initialItems = [], o
   const [itemEditing, setItemEditing] = useState<QuoteItemFormValues | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [isAddingItem, setIsAddingItem] = useState(false);
+  const [useCustomProduct, setUseCustomProduct] = useState(false);
 
   // Fetch inventory items
   const { data: inventoryItems = [], isLoading: isLoadingItems } = useQuery({
@@ -125,6 +127,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ initialData, initialItems = [], o
       discount_percentage: 0,
     });
     setEditingIndex(null);
+    setUseCustomProduct(false);
     
     itemForm.reset({
       inventory_item_id: undefined,
@@ -139,6 +142,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ initialData, initialItems = [], o
     setIsAddingItem(true);
     setItemEditing(item);
     setEditingIndex(index);
+    setUseCustomProduct(!item.inventory_item_id);
     itemForm.reset(item);
   };
 
@@ -147,18 +151,28 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ initialData, initialItems = [], o
   };
 
   const handleSaveItem = (data: QuoteItemFormValues) => {
+    // If using custom product, remove the inventory_item_id
+    const finalData = useCustomProduct ? { ...data, inventory_item_id: undefined } : data;
+    
     if (editingIndex !== null) {
       // Edit existing item
       const newItems = [...quoteItems];
-      newItems[editingIndex] = data;
+      newItems[editingIndex] = finalData;
       setQuoteItems(newItems);
     } else {
       // Add new item
-      setQuoteItems([...quoteItems, data]);
+      setQuoteItems([...quoteItems, finalData]);
     }
     setIsAddingItem(false);
     setItemEditing(null);
     setEditingIndex(null);
+  };
+
+  const handleToggleCustomProduct = (checked: boolean) => {
+    setUseCustomProduct(checked);
+    if (checked) {
+      itemForm.setValue("inventory_item_id", undefined);
+    }
   };
 
   const handleSelectInventoryItem = (itemId: string) => {
@@ -375,7 +389,16 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ initialData, initialItems = [], o
                   <tbody>
                     {quoteItems.map((item, index) => (
                       <tr key={index} className="border-t">
-                        <td className="px-4 py-3">{item.description}</td>
+                        <td className="px-4 py-3">
+                          <div>
+                            {item.description}
+                            {!item.inventory_item_id && (
+                              <span className="text-xs ml-2 bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                                Produto personalizado
+                              </span>
+                            )}
+                          </div>
+                        </td>
                         <td className="px-4 py-3 text-right">{item.quantity}</td>
                         <td className="px-4 py-3 text-right">
                           {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.unit_price)}
@@ -434,51 +457,67 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ initialData, initialItems = [], o
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
+                  <div className="mb-6 flex items-center space-x-2">
+                    <Switch
+                      id="custom-product"
+                      checked={useCustomProduct}
+                      onCheckedChange={handleToggleCustomProduct}
+                    />
+                    <label
+                      htmlFor="custom-product"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Produto personalizado (fora do estoque)
+                    </label>
+                  </div>
+                
                   <Form {...itemForm}>
                     <form
                       onSubmit={itemForm.handleSubmit(handleSaveItem)}
                       className="space-y-4"
                     >
-                      {/* Inventory Item Selection */}
-                      <FormField
-                        control={itemForm.control}
-                        name="inventory_item_id"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Produto do Estoque</FormLabel>
-                            <Select
-                              onValueChange={(value) => {
-                                field.onChange(value);
-                                handleSelectInventoryItem(value);
-                              }}
-                              value={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Selecione um produto (opcional)" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {isLoadingItems ? (
-                                  <div className="flex items-center justify-center p-2">
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                  </div>
-                                ) : (
-                                  inventoryItems.map((item: InventoryItemWithCategory) => (
-                                    <SelectItem key={item.id} value={item.id}>
-                                      {item.name} {item.sku ? `(${item.sku})` : ""}
-                                    </SelectItem>
-                                  ))
-                                )}
-                              </SelectContent>
-                            </Select>
-                            <FormDescription>
-                              Selecionar um produto preencherá automaticamente os detalhes
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      {/* Inventory Item Selection - Only show if not custom product */}
+                      {!useCustomProduct && (
+                        <FormField
+                          control={itemForm.control}
+                          name="inventory_item_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Produto do Estoque</FormLabel>
+                              <Select
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                  handleSelectInventoryItem(value);
+                                }}
+                                value={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Selecione um produto" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {isLoadingItems ? (
+                                    <div className="flex items-center justify-center p-2">
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    </div>
+                                  ) : (
+                                    inventoryItems.map((item: InventoryItemWithCategory) => (
+                                      <SelectItem key={item.id} value={item.id}>
+                                        {item.name} {item.sku ? `(${item.sku})` : ""}
+                                      </SelectItem>
+                                    ))
+                                  )}
+                                </SelectContent>
+                              </Select>
+                              <FormDescription>
+                                Selecionar um produto preencherá automaticamente os detalhes
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
 
                       {/* Description */}
                       <FormField

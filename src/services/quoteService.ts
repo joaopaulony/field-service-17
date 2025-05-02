@@ -444,7 +444,7 @@ export const getQuoteSummary = async (): Promise<QuoteSummary> => {
 };
 
 // Export to PDF
-export const generateQuotePDF = async (quoteId: string): Promise<string | null> => {
+export const generateQuotePDF = async (quoteId: string): Promise<string | Blob | null> => {
   try {
     console.log(`Generating PDF for quote: ${quoteId}`);
     
@@ -510,9 +510,10 @@ export const generateQuotePDF = async (quoteId: string): Promise<string | null> 
     const tableData = quote.items.map(item => {
       const discountMultiplier = item.discount_percentage ? (1 - item.discount_percentage / 100) : 1;
       const totalPrice = item.quantity * item.unit_price * discountMultiplier;
+      const inventoryText = item.inventory_item ? ` (${item.inventory_item.name})` : '';
       
       return [
-        item.description,
+        item.description + inventoryText,
         item.quantity.toString(),
         `R$ ${item.unit_price.toFixed(2)}`,
         item.discount_percentage ? `${item.discount_percentage}%` : "-",
@@ -559,16 +560,18 @@ export const generateQuotePDF = async (quoteId: string): Promise<string | null> 
       doc.text(splitNotes, 14, finalY + 22);
     }
     
-    // Generate file name and save
+    // Generate file name
     const fileName = `orcamento_${quote.id.substring(0, 8)}.pdf`;
-    doc.save(fileName);
+    
+    // Save PDF (for download option)
+    const pdfBlob = doc.output('blob');
     
     toast({
       title: "PDF gerado com sucesso",
       description: `O orçamento foi exportado para ${fileName}`,
     });
     
-    return fileName;
+    return pdfBlob;
   } catch (error: any) {
     console.error("Exception in generateQuotePDF:", error);
     toast({
@@ -577,6 +580,97 @@ export const generateQuotePDF = async (quoteId: string): Promise<string | null> 
       variant: "destructive",
     });
     return null;
+  }
+};
+
+// Download PDF for a quote
+export const downloadQuotePDF = async (quoteId: string): Promise<void> => {
+  try {
+    const pdfBlob = await generateQuotePDF(quoteId);
+    if (pdfBlob instanceof Blob) {
+      const fileName = `orcamento_${quoteId.substring(0, 8)}.pdf`;
+      const url = URL.createObjectURL(pdfBlob);
+      
+      // Create an anchor element and trigger download
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Clean up
+      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    }
+  } catch (error: any) {
+    console.error("Error downloading quote PDF:", error);
+    toast({
+      title: "Erro ao baixar PDF",
+      description: error.message,
+      variant: "destructive",
+    });
+  }
+};
+
+// Send quote via email
+export const sendQuoteByEmail = async (
+  quoteId: string, 
+  recipientEmail: string,
+  subject?: string,
+  message?: string
+): Promise<boolean> => {
+  try {
+    console.log(`Sending quote email for quote: ${quoteId} to ${recipientEmail}`);
+    
+    // Generate the PDF
+    const pdfBlob = await generateQuotePDF(quoteId);
+    if (!pdfBlob || !(pdfBlob instanceof Blob)) {
+      throw new Error("Falha ao gerar PDF do orçamento");
+    }
+    
+    // Convert PDF blob to base64
+    const reader = new FileReader();
+    const pdfBase64Promise = new Promise<string>((resolve, reject) => {
+      reader.onloadend = () => {
+        const base64data = reader.result as string;
+        const base64Content = base64data.split(';base64,')[1] || base64data;
+        resolve(base64Content);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(pdfBlob);
+    });
+    
+    const pdfBase64 = await pdfBase64Promise;
+    
+    // Call the edge function to send the email
+    const { error } = await supabase.functions.invoke("send-quote-email", {
+      body: JSON.stringify({
+        quoteId,
+        recipientEmail,
+        subject,
+        message,
+        pdfBase64,
+      })
+    });
+
+    if (error) {
+      throw error;
+    }
+    
+    toast({
+      title: "Email enviado com sucesso",
+      description: `O orçamento foi enviado para ${recipientEmail}`,
+    });
+    
+    return true;
+  } catch (error: any) {
+    console.error("Error sending quote email:", error);
+    toast({
+      title: "Erro ao enviar email",
+      description: error.message,
+      variant: "destructive",
+    });
+    return false;
   }
 };
 

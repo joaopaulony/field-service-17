@@ -5,7 +5,7 @@ import {
   getQuotes,
   getQuoteSummary,
   deleteQuote,
-  generateQuotePDF,
+  downloadQuotePDF,
 } from "@/services/quoteService";
 import QuoteCard from "@/components/quotes/QuoteCard";
 import QuoteTable from "@/components/quotes/QuoteTable";
@@ -24,6 +24,8 @@ import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Loader2, BarChart3 } from "lucide-react";
 import { Quote } from "@/types/quotes";
+import QuoteEmailDialog from "@/components/quotes/QuoteEmailDialog";
+import { sendQuoteByEmail } from "@/services/quoteService";
 
 const Quotes: React.FC = () => {
   const navigate = useNavigate();
@@ -79,7 +81,7 @@ const Quotes: React.FC = () => {
 
   const handleGeneratePdf = async (quoteId: string) => {
     try {
-      await generateQuotePDF(quoteId);
+      await downloadQuotePDF(quoteId);
     } catch (error) {
       console.error("Failed to generate PDF:", error);
       toast({
