@@ -1,57 +1,39 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  UserPlus, 
-  Search, 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
-  Check, 
-  X,
-  Mail,
-  Phone
-} from 'lucide-react';
+import { UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { 
   Table, 
   TableBody, 
-  TableCell, 
   TableHead, 
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { fetchTechnicians, createTechnician, updateTechnician, deleteTechnician } from '@/services/technicianService';
+import { 
+  fetchTechnicians, 
+  createTechnician, 
+  updateTechnician, 
+  deleteTechnician 
+} from '@/services/technicianService';
 import { Technician, CreateTechnicianDTO } from '@/types/workOrders';
-import { Badge } from '@/components/ui/badge';
+
+// Import custom components
+import TechnicianList from '@/components/technicians/TechnicianList';
+import TechnicianForm from '@/components/technicians/TechnicianForm';
+import TechnicianSearch from '@/components/technicians/TechnicianSearch';
+import DeleteTechnicianDialog from '@/components/technicians/DeleteTechnicianDialog';
 
 const Technicians = () => {
   const { toast } = useToast();
@@ -67,13 +49,13 @@ const Technicians = () => {
     phone: ''
   });
   
-  // Consulta para buscar técnicos
+  // Query to fetch technicians
   const { data: technicians = [], isLoading } = useQuery({
     queryKey: ['technicians'],
     queryFn: fetchTechnicians
   });
   
-  // Mutação para criar técnico
+  // Mutation to create technician
   const createMutation = useMutation({
     mutationFn: createTechnician,
     onSuccess: () => {
@@ -94,7 +76,7 @@ const Technicians = () => {
     }
   });
   
-  // Mutação para atualizar técnico
+  // Mutation to update technician
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string, data: Partial<Technician> }) => 
       updateTechnician(id, data),
@@ -116,7 +98,7 @@ const Technicians = () => {
     }
   });
   
-  // Mutação para excluir técnico
+  // Mutation to delete technician
   const deleteMutation = useMutation({
     mutationFn: deleteTechnician,
     onSuccess: () => {
@@ -136,7 +118,7 @@ const Technicians = () => {
     }
   });
   
-  // Filtrar técnicos por termo de busca
+  // Filter technicians by search term
   const filteredTechnicians = technicians.filter(technician => {
     if (!searchTerm) return true;
     
@@ -148,7 +130,7 @@ const Technicians = () => {
     );
   });
   
-  // Funções auxiliares
+  // Helper functions
   const resetForm = () => {
     setFormData({
       name: '',
@@ -216,18 +198,13 @@ const Technicians = () => {
         </Button>
       </div>
       
-      {/* Filtros */}
-      <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Buscar técnicos..."
-          className="pl-9"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+      {/* Search */}
+      <TechnicianSearch 
+        searchTerm={searchTerm} 
+        onSearchChange={setSearchTerm} 
+      />
       
-      {/* Tabela */}
+      {/* Table */}
       <div className="border rounded-md overflow-hidden">
         <Table>
           <TableHeader>
@@ -240,89 +217,18 @@ const Technicians = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-10">
-                  Carregando técnicos...
-                </TableCell>
-              </TableRow>
-            ) : filteredTechnicians.length > 0 ? (
-              filteredTechnicians.map((technician) => (
-                <TableRow key={technician.id}>
-                  <TableCell className="font-medium">{technician.name}</TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      {technician.email}
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {technician.phone ? (
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        {technician.phone}
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground">Não informado</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {technician.active ? (
-                      <Badge variant="default" className="bg-green-500">Ativo</Badge>
-                    ) : (
-                      <Badge variant="outline" className="text-red-500">Inativo</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openEditDialog(technician)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          <span>Editar</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => toggleTechnicianStatus(technician)}>
-                          {technician.active ? (
-                            <>
-                              <X className="mr-2 h-4 w-4" />
-                              <span>Desativar</span>
-                            </>
-                          ) : (
-                            <>
-                              <Check className="mr-2 h-4 w-4" />
-                              <span>Ativar</span>
-                            </>
-                          )}
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem 
-                          className="text-red-600" 
-                          onClick={() => openDeleteDialog(technician)}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          <span>Excluir</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
-                  Nenhum técnico encontrado.
-                </TableCell>
-              </TableRow>
-            )}
+            <TechnicianList 
+              technicians={filteredTechnicians} 
+              isLoading={isLoading}
+              onEdit={openEditDialog}
+              onDelete={openDeleteDialog}
+              onToggleStatus={toggleTechnicianStatus}
+            />
           </TableBody>
         </Table>
       </div>
       
-      {/* Dialog para adicionar técnico */}
+      {/* Dialog for adding technician */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
         <DialogContent>
           <DialogHeader>
@@ -331,57 +237,21 @@ const Technicians = () => {
               Preencha as informações para adicionar um novo técnico à sua equipe.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nome</Label>
-              <Input
-                id="name"
-                name="name"
-                placeholder="Nome completo do técnico"
-                value={formData.name}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="email@exemplo.com"
-                value={formData.email}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Telefone (opcional)</Label>
-              <Input
-                id="phone"
-                name="phone"
-                placeholder="(00) 00000-0000"
-                value={formData.phone}
-                onChange={handleInputChange}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
+          <TechnicianForm
+            formData={formData}
+            onChange={handleInputChange}
+            onCancel={() => {
               resetForm();
               setIsAddOpen(false);
-            }}>
-              Cancelar
-            </Button>
-            <Button 
-              onClick={handleAddTechnician}
-              disabled={!formData.name || !formData.email || createMutation.isPending}
-            >
-              {createMutation.isPending ? "Adicionando..." : "Adicionar Técnico"}
-            </Button>
-          </DialogFooter>
+            }}
+            onSubmit={handleAddTechnician}
+            isPending={createMutation.isPending}
+            submitLabel="Adicionar Técnico"
+          />
         </DialogContent>
       </Dialog>
       
-      {/* Dialog para editar técnico */}
+      {/* Dialog for editing technician */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent>
           <DialogHeader>
@@ -390,76 +260,27 @@ const Technicians = () => {
               Atualize as informações do técnico.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-name">Nome</Label>
-              <Input
-                id="edit-name"
-                name="name"
-                placeholder="Nome completo do técnico"
-                value={formData.name}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-email">Email</Label>
-              <Input
-                id="edit-email"
-                name="email"
-                type="email"
-                placeholder="email@exemplo.com"
-                value={formData.email}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-phone">Telefone (opcional)</Label>
-              <Input
-                id="edit-phone"
-                name="phone"
-                placeholder="(00) 00000-0000"
-                value={formData.phone}
-                onChange={handleInputChange}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
+          <TechnicianForm
+            formData={formData}
+            onChange={handleInputChange}
+            onCancel={() => {
               resetForm();
               setIsEditOpen(false);
-            }}>
-              Cancelar
-            </Button>
-            <Button 
-              onClick={handleUpdateTechnician}
-              disabled={!formData.name || !formData.email || updateMutation.isPending}
-            >
-              {updateMutation.isPending ? "Salvando..." : "Salvar Alterações"}
-            </Button>
-          </DialogFooter>
+            }}
+            onSubmit={handleUpdateTechnician}
+            isPending={updateMutation.isPending}
+            submitLabel="Salvar Alterações"
+          />
         </DialogContent>
       </Dialog>
       
-      {/* AlertDialog para confirmar exclusão */}
+      {/* AlertDialog for confirming deletion */}
       <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso excluirá permanentemente o técnico
-              <strong> {selectedTechnician?.name}</strong> e removerá suas informações do sistema.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDeleteTechnician}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {deleteMutation.isPending ? "Excluindo..." : "Excluir Técnico"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
+        <DeleteTechnicianDialog 
+          technician={selectedTechnician}
+          isPending={deleteMutation.isPending}
+          onDelete={handleDeleteTechnician}
+        />
       </AlertDialog>
     </div>
   );
