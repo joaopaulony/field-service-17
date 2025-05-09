@@ -2,7 +2,6 @@
 import React from 'react';
 import { BlogPost } from '@/types/blog';
 import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Eye, Edit, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -35,22 +34,15 @@ const BlogPostActions: React.FC<BlogPostActionsProps> = ({
       >
         <Edit className="h-4 w-4" />
       </Button>
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            className="border-red-200 text-red-500 hover:text-red-600 hover:bg-red-50"
-            onClick={(e) => {
-              e.preventDefault(); // Prevent button click from triggering dialog open/close
-              onSelectPostToDelete(post);
-            }}
-            title="Excluir"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </AlertDialogTrigger>
-      </AlertDialog>
+      <Button
+        variant="outline"
+        size="icon"
+        className="border-red-200 text-red-500 hover:text-red-600 hover:bg-red-50"
+        onClick={() => onSelectPostToDelete(post)}
+        title="Excluir"
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
     </div>
   );
 };

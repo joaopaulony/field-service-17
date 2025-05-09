@@ -27,6 +27,11 @@ const DeletePostDialog: React.FC<DeletePostDialogProps> = ({
   onOpenChange,
   onConfirm,
 }) => {
+  const handleConfirm = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    await onConfirm();
+  };
+
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
@@ -39,10 +44,7 @@ const DeletePostDialog: React.FC<DeletePostDialogProps> = ({
       <AlertDialogFooter>
         <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
         <AlertDialogAction
-          onClick={(e) => {
-            e.preventDefault();
-            onConfirm();
-          }}
+          onClick={handleConfirm}
           className="bg-red-600 hover:bg-red-700"
           disabled={isDeleting}
         >

@@ -16,18 +16,25 @@ interface DeleteTechnicianDialogProps {
   technician: Technician | null;
   isPending: boolean;
   onDelete: () => void;
+  onCancel?: () => void;
 }
 
 const DeleteTechnicianDialog: React.FC<DeleteTechnicianDialogProps> = ({
   technician,
   isPending,
-  onDelete
+  onDelete,
+  onCancel
 }) => {
   // Handler to prevent auto-close when confirming deletion
   const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault();
     onDelete();
-    // Dialog will be closed by the parent component after operation completes
+  };
+  
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel();
+    }
   };
   
   return (
@@ -40,7 +47,7 @@ const DeleteTechnicianDialog: React.FC<DeleteTechnicianDialogProps> = ({
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
+        <AlertDialogCancel disabled={isPending} onClick={handleCancel}>Cancelar</AlertDialogCancel>
         <AlertDialogAction 
           onClick={handleDelete}
           className="bg-red-600 hover:bg-red-700"

@@ -29,11 +29,18 @@ const DeleteWorkOrderDialog: React.FC<DeleteWorkOrderDialogProps> = ({
   const handleConfirm = (e: React.MouseEvent) => {
     e.preventDefault();
     onConfirm();
-    // We don't close the dialog here - it will be closed by the parent component after operation completes
   };
   
   return (
-    <AlertDialog open={open} onOpenChange={isPending ? undefined : onOpenChange}>
+    <AlertDialog 
+      open={open} 
+      onOpenChange={(newOpenState) => {
+        // Only allow closing the dialog if we're not in the middle of deleting
+        if (!isPending) {
+          onOpenChange(newOpenState);
+        }
+      }}
+    >
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Excluir Ordem de Serviço</AlertDialogTitle>
